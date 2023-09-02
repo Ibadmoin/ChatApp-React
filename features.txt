@@ -1,0 +1,10 @@
+1) Whatsapp like phone numbers based authentication. (but password included for increasing user exp);
+2) user update profile feature like changing their profile etc;
+3) showing chat of only add user's friends, not everyone who create account.(can be added thorugh phone number like whatsapp!);
+4) adding friend request and accept/reject them.
+5) push messages notifiction through Firebase Cloud Messaging (FCM);
+6) Search user functionality
+7) group chats(optioanl);
+8) block user functionality just cause if someone added strangers accidently.
+9) chat history with pagination, infinite scroll, pull to refresh.
+10) continous improvement! Xd
