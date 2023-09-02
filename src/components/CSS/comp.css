@@ -65,3 +65,9 @@
         display: none;
     }
 } 
+
+/* Add a high z-index to react-modal-portal */
+.ReactModal__Overlay--after-open {
+    z-index: 9999; /* Set a value higher than other elements */
+  }
+  

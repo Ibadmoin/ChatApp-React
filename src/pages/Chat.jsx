@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MainContainer,
@@ -84,6 +83,7 @@ function Chat() {
       >
         <MainContainer responsive>
           <Sidebar position="left" scrollable={false} style={sidebarStyle}>
+
             <UserDetail
               imgUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU"
               userName="Muhammad Ibad moin"

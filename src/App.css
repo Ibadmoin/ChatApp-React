@@ -1,11 +1,7 @@
-body{
-  /* background: pink; */
-
-
-}
 .Container{
   background: red;
   height: 100%;
+  position: relative;
 
 
 }
