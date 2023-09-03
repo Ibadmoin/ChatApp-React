@@ -1,0 +1,7 @@
+primary color: #F6FBFF (light);
+secondary color : #C6E3FA (dark);
+
+font family currently: sans-serif;
+
+
+
