@@ -1,6 +1,9 @@
 import React from 'react';
 import { ReactDOM } from 'react';
 import Modal from 'react-modal';
+import './CSS/popup.css'
+import { FaCamera } from 'react-icons/fa';
+import {ProfileUploader} from './Comp'
 
 
 const customStyles = {
@@ -48,7 +51,9 @@ function UpdatePopUp({isOpen, closeModal}) {
         <h2 style={{textAlign:"center",fontFamily:"sans-serif",fontSize:"1.5em"}} ref={(_subtitle) => (subtitle = _subtitle)}>Update Profile</h2>
         <button style={{position:"absolute",right:"0",border:"none",background:"transparent",fontSize:"2em",color:"#6ea9d7"}} onClick={closeModal}> X</button>
         </div>
-        <div style={{background:"skyBlue",width:"95%",minHeight:"500px",margin:"15px auto"}} >Update feilds will be used here</div>
+        <div style={{background:"skyBlue",padding:"10px 5px",width:"95%",minHeight:"500px", display:'flex',flexDirection:"column",alignItems:"center",margin:"15px auto"}} >
+          <ProfileUploader />
+        </div>
         
       </Modal>
     </div>

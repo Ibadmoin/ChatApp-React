@@ -1,0 +1,104 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+
+}
+.UserProfile{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    position: relative;
+}
+.UserProfile img{
+    width: 100%;
+    border-radius: 50%;
+
+}
+
+/* overlya effects */
+
+.UserProfile .overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:rgba(0,0,0,0.5) ;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+
+
+}
+
+.UserProfile:hover .overlay {
+    opacity: 1;
+}
+
+.UserProfile .overlay .cam-icon{
+    font-size: 24px;
+    color: white;
+    margin-bottom: 8px;
+
+}
+
+.UserProfile .overlay p {
+    color: white;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.Profile-Modal{
+    position: absolute;
+    transform: translate(-50%,-50%);
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 500px;
+
+    content:"" ;
+    background: whitesmoke;
+}
+.Modal-Top{
+    background: green;
+    height: 50px;
+    display: flex;
+    
+}
+.Modal-Top i {
+    width: 10%;
+    height: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+.Modal-Top h2 {
+    width: 60%;
+    height: inherit;
+    font-size: 18px;
+    color: white;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    background-color: black;
+    padding-left: 5px;
+}
+.Input-Div{
+    background: yellow;
+    width: 30%;
+    height: inherit;
+}
+
+/* --------------canvas */
+canvas{
+    background: #00000080;
+}
