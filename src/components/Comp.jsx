@@ -1,5 +1,7 @@
 import React from 'react';
 import UserDetail from './UserDetail';
+import Button from './Button';
+import Input from './Input';
 
 
 
@@ -11,6 +13,6 @@ import UserDetail from './UserDetail';
 
 
 
-export {UserDetail,}
+export {UserDetail,Button,Input}
 
 

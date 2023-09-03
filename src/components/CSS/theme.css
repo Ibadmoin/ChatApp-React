@@ -1,0 +1,55 @@
+*{
+    margin:  0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 1em;
+
+}
+:root {
+    --primaryColor:#F6FBFF ;
+    --secondaryColor: #C6E3FA;
+}
+
+.Theme-btn{
+    width: 120px;
+    height: 40px;
+    border-radius:5px ;
+    background-color: var(--secondaryColor);
+    border: none;
+    color: #fff;
+    padding: 10px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .3s ease;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    
+    text-transform: capitalize;
+
+}
+.Theme-btn:hover {
+    background-color: #89c4f5; /* Change to your desired hover background color */
+    color: #fff; /* Change to your desired hover text color */
+    transform: scale(1.05); /* Add a subtle scale effect on hover */
+  }
+.Theme-btn:active{
+    transform: scale(0.9);
+    
+}
+
+/* theme input */
+.theme-input{
+    width: 100%;
+    height: 40px;
+    padding: 10px;
+    border: 1px solid var(--secondaryColor);
+    outline: none;
+    border-radius: 5px;
+    font-size: 16px;
+
+}
+.theme-input:focus,
+.theme-input:hover {
+  border-color: #89c4f5; /* Change border color on focus/hover */
+  box-shadow: 0 0 5px #89c4f591; /* Add a subtle box shadow */
+}
