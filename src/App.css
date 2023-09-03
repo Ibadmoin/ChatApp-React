@@ -1,7 +1,10 @@
 .Container{
   /* background: red; */
-  height: 100%;
+  height: 100vh;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
 
 }

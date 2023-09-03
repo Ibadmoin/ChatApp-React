@@ -2,6 +2,7 @@ import React from 'react';
 import UserDetail from './UserDetail';
 import Button from './Button';
 import Input from './Input';
+import Uploader from './Uploader';
 
 
 
@@ -13,6 +14,6 @@ import Input from './Input';
 
 
 
-export {UserDetail,Button,Input}
+export {UserDetail,Button,Input, Uploader }
 
 

@@ -30,6 +30,7 @@ function Chat() {
   const [chatContainerStyle, setChatContainerStyle] = useState({});
   const [conversationContentStyle, setConversationContentStyle] = useState({});
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
+  
 
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
@@ -134,7 +135,7 @@ function Chat() {
                 }}
               />
             </MessageList>
-            <MessageInput placeholder="Type message here" />
+            <MessageInput   placeholder="Type message here" />
           </ChatContainer>
         </MainContainer>
       </div>

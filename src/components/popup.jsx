@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 
 const customStyles = {
   content: {
-    minWidth: "300px",
+    minWidth: "350px",
     width:"40%",
     minHeight: "400px",
     top: '50%',
@@ -48,7 +48,7 @@ function UpdatePopUp({isOpen, closeModal}) {
         <h2 style={{textAlign:"center",fontFamily:"sans-serif",fontSize:"1.5em"}} ref={(_subtitle) => (subtitle = _subtitle)}>Update Profile</h2>
         <button style={{position:"absolute",right:"0",border:"none",background:"transparent",fontSize:"2em",color:"#6ea9d7"}} onClick={closeModal}> X</button>
         </div>
-        <div style={{background:"skyBlue",width:"90%",minHeight:"500px",margin:"15px auto"}} >Update feilds will be used here</div>
+        <div style={{background:"skyBlue",width:"95%",minHeight:"500px",margin:"15px auto"}} >Update feilds will be used here</div>
         
       </Modal>
     </div>
