@@ -28,36 +28,13 @@ Modal.setAppElement(document.getElementById("root"));
 
 function UpdatePopUp({ isOpen, closeModal }) {
   let subtitle;
-  const MAX_CHARACTERS = 25;
-  const [editText, setEditText] = useState(false);
-  const textWrapperRef = useRef('ibad');
-  const textWrapperContainerRef = useRef(null);
+
   function afterOpenModal() {
     // references are now sync'd and can be accessed.
     subtitle.style.color = "#f00";
   }
 
-  const handleEditText = ()=>{
-    console.log("clicked");
-    const nametext = textWrapperRef.current;
-    const nameContainer = textWrapperContainerRef.current;
-    nameContainer.style.borderBottom = '2px solid green'
-    setEditText(true);
- 
 
-    
-  };
-  const handleBlur = () => {
-    setEditText(false);
-  };
-  const handleInput = (e) => {
-    const nametext = textWrapperRef.current;
-    if (nametext) {
-      if (nametext.textContent.length >= MAX_CHARACTERS) {
-        e.preventDefault(); // Prevent further input
-      }
-    }
-  };
   
 
   return (
@@ -119,13 +96,13 @@ function UpdatePopUp({ isOpen, closeModal }) {
             <div>
               <span className="profileUpdateheading">Your name</span>
             </div>
-            <div ref={textWrapperContainerRef} className="yourNameWrapper">
-              <div  className="innerNameWrapper"><span className="nametext" contentEditable={editText} ref={textWrapperRef}> ibad</span> </div>
+            <div  className="yourNameWrapper">
+              <div  className="innerNameWrapper"><span className="nametext" > ibad</span> </div>
               <span className="emoji_Count">
                 <div className="textLimit">25</div>
                 <div></div>
               </span>{" "}
-              <span className="DoneSpan"><MdEdit onBlur={handleBlur} onInput={handleInput} onClick={handleEditText} color="gray" size={20}/></span>{" "}
+              <span className="DoneSpan"><MdEdit  color="gray" size={20}/></span>{" "}
             </div>
           </div>
         </div>
