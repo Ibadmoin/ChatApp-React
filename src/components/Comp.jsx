@@ -2,7 +2,6 @@ import React from 'react';
 import UserDetail from './UserDetail';
 import Button from './Button';
 import Input from './Input';
-import Uploader from './Uploader';
 import ProfileUploader from './ProfileUploader'
 
 
@@ -15,6 +14,6 @@ import ProfileUploader from './ProfileUploader'
 
 
 
-export {UserDetail,Button,Input, Uploader,ProfileUploader }
+export {UserDetail,Button,Input,ProfileUploader }
 
 

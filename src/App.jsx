@@ -6,7 +6,7 @@ import React, { Fragment,useState } from 'react';
 import Chat from './pages/Chat';
 import "./App.css" 
 import UpdatePopUp from './components/popup';
-import { Button,Input,Uploader } from './components/Comp';
+import { Button,Input, } from './components/Comp';
 import UserImgContainer from './components/UserImgContainer';
 
 
