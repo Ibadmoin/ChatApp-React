@@ -1,0 +1,31 @@
+This is a text file/guide for customized components || functions which are props manipulated by Me/My team.
+so that this can  be used to help and boost the development of this project for example:
+------------------------------------------------------------------------------------------------------
+------------------Customized Toast@-----------------------------------------------------------------
+
+you can use toastify toast as passing it text and type props 
+<Toast  type="error" text="hello world!"/>  i.e for success toast
+<Toast  type="success" text="hello world!"/>  i.e for error toast
+<Toast  type="warn" text="hello world!"/>   i.e for warn toast
+<Toast  type="info" text="hello world!"/>  i.e for info toast
+
+(note only this four types are supported for now. normal toast will be broadCast if no type is passed!. );
+(feel free! to customize Toast.jsx in extras folder for your usage. can be done easily );
+------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------
+More features will be added when needed!  
+---------------------------------------------
+

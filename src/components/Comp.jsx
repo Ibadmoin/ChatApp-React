@@ -9,11 +9,10 @@ import ProfileUploader from './ProfileUploader'
 
 
 
-
 // main components file
 
 
 
-export {UserDetail,Button,Input,ProfileUploader }
+export {UserDetail,Button,Input,ProfileUploader, }
 
 

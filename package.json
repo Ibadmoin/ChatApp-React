@@ -19,7 +19,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-image-upload": "^3.0.1",
-    "react-modal": "^3.16.1"
+    "react-modal": "^3.16.1",
+    "react-toastify": "^9.1.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
