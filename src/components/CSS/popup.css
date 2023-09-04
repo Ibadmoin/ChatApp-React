@@ -73,7 +73,6 @@ color:#2a9af7;
     /* background-color: red; */
     display: flex;
     justify-content: center;
-    border-bottom:2px solid green ;
     margin-top: 10px;
     padding-bottom: 2px;
     
@@ -93,15 +92,14 @@ color:#2a9af7;
 
 .emoji_Count{
     display: flex;
-    padding-top: 12px;
     margin-left: 12px;
-    align-items: center;
+    padding-top: 12px;
     justify-content: space-around;
 }
 .emoji_Count div {
     width: 20px;
     height: 20px;
-    background-color: white;
+
 }
 
 .DoneSpan{

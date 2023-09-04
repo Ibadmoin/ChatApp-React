@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { ReactDOM } from "react";
 import Modal from "react-modal";
+import { useRef } from "react";
 import "./CSS/popup.css";
 import { FaCamera } from "react-icons/fa";
 import { ProfileUploader } from "./Comp";
+import {MdEdit} from 'react-icons/md'
 
 const customStyles = {
   content: {
@@ -26,11 +28,37 @@ Modal.setAppElement(document.getElementById("root"));
 
 function UpdatePopUp({ isOpen, closeModal }) {
   let subtitle;
-
+  const MAX_CHARACTERS = 25;
+  const [editText, setEditText] = useState(false);
+  const textWrapperRef = useRef('ibad');
+  const textWrapperContainerRef = useRef(null);
   function afterOpenModal() {
     // references are now sync'd and can be accessed.
     subtitle.style.color = "#f00";
   }
+
+  const handleEditText = ()=>{
+    console.log("clicked");
+    const nametext = textWrapperRef.current;
+    const nameContainer = textWrapperContainerRef.current;
+    nameContainer.style.borderBottom = '2px solid green'
+    setEditText(true);
+ 
+
+    
+  };
+  const handleBlur = () => {
+    setEditText(false);
+  };
+  const handleInput = (e) => {
+    const nametext = textWrapperRef.current;
+    if (nametext) {
+      if (nametext.textContent.length >= MAX_CHARACTERS) {
+        e.preventDefault(); // Prevent further input
+      }
+    }
+  };
+  
 
   return (
     <div>
@@ -91,13 +119,13 @@ function UpdatePopUp({ isOpen, closeModal }) {
             <div>
               <span className="profileUpdateheading">Your name</span>
             </div>
-            <div className="yourNameWrapper">
-              <div className="innerNameWrapper">ibad </div>
+            <div ref={textWrapperContainerRef} className="yourNameWrapper">
+              <div  className="innerNameWrapper"><span className="nametext" contentEditable={editText} ref={textWrapperRef}> ibad</span> </div>
               <span className="emoji_Count">
                 <div className="textLimit">25</div>
-                <div>@</div>
+                <div></div>
               </span>{" "}
-              <span className="DoneSpan">~/</span>{" "}
+              <span className="DoneSpan"><MdEdit onBlur={handleBlur} onInput={handleInput} onClick={handleEditText} color="gray" size={20}/></span>{" "}
             </div>
           </div>
         </div>
