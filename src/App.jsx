@@ -22,8 +22,8 @@ function App() {
   }
   return (
     <div className="Container">
-      {/* <Chat className="ChatBox" />  */}
-      <ToastExample text={"Hello"} type={'success'}/>
+      <Chat className="ChatBox" /> 
+      
     </div>
   );
 }
