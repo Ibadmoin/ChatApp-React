@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 //---------pakages imports-----------------
 import ToastExample from './extras/Toast'
 // -------------pages---------------
@@ -8,6 +8,10 @@ import "./App.css";
 import UpdatePopUp from "./components/popup";
 import { Button, Input } from "./components/Comp";
 import UserImgContainer from "./components/UserImgContainer";
+import Login from "./pages/auth/login/Login";
+import SignUp from "./pages/auth/signup/SignUp";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import PrivateRoute from "./components/PrivateRoute";
 
 
 
@@ -23,7 +27,16 @@ function App() {
   return (
     
     <div className="Container">
-      <Chat className="ChatBox" /> 
+<BrowserRouter >
+      <Routes>
+        <Route path="/chat" element= {<PrivateRoute Element={Chat}/>} />
+        <Route path="/" element= {<Login/>} />
+        <Route path="/signup" element= {<SignUp/>} />
+      </Routes>
+    </BrowserRouter>
+      
+      
+      {/* <Chat className="ChatBox" />  */}
       
     </div>
   );

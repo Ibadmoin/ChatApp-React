@@ -122,6 +122,7 @@ function Chat() {
                 userName="Zoe"
                 info="Active 10 mins ago"
               />
+
             </ConversationHeader>
             <MessageList>
               <MessageSeparator content="thursday, 15 July 2021" />
