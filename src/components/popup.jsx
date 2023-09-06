@@ -36,7 +36,7 @@ function UpdatePopUp({ isOpen, closeModal }) {
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("ibad");
-  const [limitCharacter, setlimitCharacter] = useState(25);
+  const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const toggleEmojiPicker = () => {
