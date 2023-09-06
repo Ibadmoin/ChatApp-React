@@ -1,0 +1,6 @@
+.emoji-picker-container{
+    width: max-content;
+    position: absolute;
+    z-index: 5;
+
+}
