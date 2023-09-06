@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactDOM } from "react";
 import Modal from "react-modal";
 import { useRef } from "react";
 import "./CSS/popup.css";
 import { FaCamera } from "react-icons/fa";
 import { ProfileUploader } from "./Comp";
-import {MdEdit} from 'react-icons/md'
+import { MdEdit } from "react-icons/md";
+import { FaCheck } from "react-icons/fa";
+import {EmojiPickerComponent} from "./Comp"
+import { FaSmile } from "react-icons/fa";
+import { CiFaceSmile } from "react-icons/ci";
+
 
 const customStyles = {
   content: {
@@ -29,13 +34,47 @@ Modal.setAppElement(document.getElementById("root"));
 function UpdatePopUp({ isOpen, closeModal }) {
   let subtitle;
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState("ibad");
+  const [limitCharacter, setlimitCharacter] = useState(25);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+// function to handle selected emoji 
+const handleEmojiSelect = (emoji) => {
+  const updatedName = name + emoji.emoji;
+  setlimitCharacter(limitCharacter-1)
+  setName(updatedName);
+  toggleEmojiPicker();
+};
+
+
   function afterOpenModal() {
     // references are now sync'd and can be accessed.
     subtitle.style.color = "#f00";
   }
 
+  //function to handle name edit btn click
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
 
-  
+  // function to handle name input change ;
+  const handleNameChange = (e) => {
+    const inputValue = e.target.value;
+    setName(inputValue);
+    const remainingCharacters = 25 - inputValue.length;
+    setlimitCharacter(remainingCharacters);
+ 
+  };
+
+  // function to handle save btn click
+
+  const handleSaveClick = () => {
+    setIsEditing(false);
+  };
 
   return (
     <div>
@@ -96,13 +135,52 @@ function UpdatePopUp({ isOpen, closeModal }) {
             <div>
               <span className="profileUpdateheading">Your name</span>
             </div>
-            <div  className="yourNameWrapper">
-              <div  className="innerNameWrapper"><span className="nametext" > ibad</span> </div>
-              <span className="emoji_Count">
-                <div className="textLimit">25</div>
-                <div></div>
-              </span>{" "}
-              <span className="DoneSpan"><MdEdit  color="gray" size={20}/></span>{" "}
+            <div className="yourNameWrapper">
+              {isEditing ? (
+                <div className="innerEditWrapper">
+                  <input
+                    type="text"
+                    value={name || ''}
+                    onChange={handleNameChange}
+                    maxLength={25}
+                    autoFocus
+                  />
+                  <span className="emoji_Count">
+                    <div className="textLimit">{limitCharacter}</div>
+                    <div>
+                      <button
+                        className="emoji-picker-button"
+                        onClick={toggleEmojiPicker}
+                        disabled={limitCharacter <= 0}
+                      >
+                        <CiFaceSmile size={20} color="" />
+
+                      </button>
+                    
+                    </div>
+                  </span>{" "}
+                  <button className="SaveName" onClick={handleSaveClick}>
+                    <FaCheck />
+                  </button>
+                  {showEmojiPicker && (
+                        <EmojiPickerComponent
+                          onEmojiClick={handleEmojiSelect}
+                          className="emojiContainer"
+                        />
+                      )}
+                </div>
+              ) : (
+                <div className="innerNameWrapper">
+                  <span className="nametext">{name}</span>
+                </div>
+              )}
+              {!isEditing && (
+                <span className="EditSpan" onClick={handleEditClick}>
+                  <MdEdit color="gray" size={20} />
+                </span>
+              )}
+         
+              
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import Chat from "./pages/Chat";
 //-----------Components------------------
 import "./App.css";
 import UpdatePopUp from "./components/popup";
-import { Button, Input } from "./components/Comp";
+import { Button, Input,EmojiPickerComponent } from "./components/Comp";
 import UserImgContainer from "./components/UserImgContainer";
 
 
@@ -24,7 +24,6 @@ function App() {
     
     <div className="Container">
       <Chat className="ChatBox" /> 
-      
     </div>
   );
 }
