@@ -5,6 +5,7 @@ import { CgSpinner } from "react-icons/cg";
 import OtpInput from "otp-input-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"
+import { auth, RecaptchaVerifier} from '../../Firebase.config'
 function Auth() {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
@@ -14,6 +15,8 @@ function Auth() {
   const [otpComplete, setOtpComplete] = useState(true);
   useEffect(()=>{
     otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
+  console.log(auth)
+
   }, [otp])
 const handleSubmit = ()=>{
   setShowOTP(true)
@@ -26,6 +29,7 @@ const otpSubmit = ()=>{
 console.log(otp)
 
   return (
+    <>
     <section className="authSection">
       <div>
         {user ? (
@@ -84,6 +88,10 @@ console.log(otp)
         )}
       </div>
     </section>
+    <div id="reCaptchaContainer">
+
+    </div>
+    </>
   );
 }
 
