@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./auth.css";
 import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
 import { CgSpinner } from "react-icons/cg";
@@ -11,6 +11,19 @@ function Auth() {
   const [loading, setLoading] = useState(false);
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
+  const [otpComplete, setOtpComplete] = useState(true);
+  useEffect(()=>{
+    otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
+  }, [otp])
+const handleSubmit = ()=>{
+  setShowOTP(true)
+}
+const otpSubmit = ()=>{
+  setLoading(true)
+  setOtpComplete(true)
+  console.log('ibad')
+}
+console.log(otp)
 
   return (
     <section className="authSection">
@@ -43,7 +56,7 @@ function Auth() {
               autoFocus
               className="opt-container"
             ></OtpInput>
-            <button className="verifyBtn">
+            <button disabled ={otpComplete} onClick = {otpSubmit}  className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
@@ -59,7 +72,7 @@ function Auth() {
               Verify your phone number
             </label>
             <PhoneInput  country={"pk"} value={ph} onChange={setPh} className="ph-container"/>
-            <button className="verifyBtn">
+            <button onClick = {handleSubmit} className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
