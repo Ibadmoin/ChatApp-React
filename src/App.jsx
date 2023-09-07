@@ -3,6 +3,7 @@ import React, { Fragment, useState } from "react";
 import ToastExample from './extras/Toast'
 // -------------pages---------------
 import Chat from "./pages/Chat";
+import Auth from "./pages/Auth/Auth"
 //-----------Components------------------
 import "./App.css";
 import UpdatePopUp from "./components/popup";
@@ -23,7 +24,8 @@ function App() {
   return (
     
     <div className="Container">
-      <Chat className="ChatBox" /> 
+    <Auth/>
+      {/* <Chat className="ChatBox" />  */}
     </div>
   );
 }
