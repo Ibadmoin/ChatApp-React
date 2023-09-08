@@ -12,7 +12,7 @@ function Auth() {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOTP,setShowOTP]= useState(true);
+  const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
   const [otpComplete, setOtpComplete] = useState(true);
   useEffect(()=>{
@@ -22,6 +22,8 @@ function Auth() {
   }, [otp])
 const handleSubmit = ()=>{
   setShowOTP(!showOTP)
+  toast.error("toast khul gaya")
+  
 }
 const otpSubmit = ()=>{
   if(confirmationResult){
@@ -139,12 +141,13 @@ function onSignUp (){
               Verify your phone number
             </label>
             <PhoneInput  country={"pk"} value={ph} onChange={setPh} className="ph-container"/>
-            <button onClick = {handleSubmit} className="verifyBtn">
+            <button onClick = {onSignUp} className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
               <span>Send code via SMS</span>
             </button>
+            <button onClick={handleSubmit}>Otp screen</button>
 
           </>
           }
