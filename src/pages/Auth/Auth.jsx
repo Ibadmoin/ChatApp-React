@@ -23,7 +23,7 @@ function Auth() {
 const handleSubmit = ()=>{
   setShowOTP(!showOTP)
   toast.error("toast khul gaya")
-  
+  // 
 }
 const otpSubmit = ()=>{
   if(confirmationResult){
