@@ -6,8 +6,9 @@ import OtpInput from "otp-input-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"
 import { auth, RecaptchaVerifier} from '../../Firebase.config'
-import { signInWithPhoneNumber } from "firebase/auth";
+import { signInWithPhoneNumber, onAuthStateChanged } from "firebase/auth";
 import { Toaster, toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 function Auth() {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
@@ -15,6 +16,7 @@ function Auth() {
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
   const [otpComplete, setOtpComplete] = useState(true);
+  const navigate = useNavigate();
   useEffect(()=>{
     otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
   console.log(auth)
@@ -25,6 +27,26 @@ const handleSubmit = ()=>{
   toast.error("toast khul gaya")
   // 
 }
+
+// change auth stated here 
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setUser(user);
+    } else {
+      setUser(null);
+    }
+  });
+  return () => unsub();
+}, [user]);
+
+useEffect(() => {
+  if (user) {
+    navigate("/chat"); // Navigate to "/chat" only when a user is authenticated.
+  }
+
+}, [user, navigate]);
+
 const otpSubmit = ()=>{
   if(confirmationResult){
     confirmationResult.confirm(otp).then(async(res)=>{

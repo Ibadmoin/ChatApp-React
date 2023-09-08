@@ -9,6 +9,7 @@ import "./App.css";
 import UpdatePopUp from "./components/popup";
 import { Button, Input,EmojiPickerComponent } from "./components/Comp";
 import UserImgContainer from "./components/UserImgContainer";
+import Routes from "./Routers";
 
 
 
@@ -18,8 +19,8 @@ function App() {
   return (
     
     <div className="Container">
-    <Auth/>
-      {/* <Chat className="ChatBox" />  */}
+      <Routes />
+
     </div>
   );
 }

@@ -20,7 +20,8 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 
 import { UserDetail, } from "../components/Comp";
-
+import { auth } from "../Firebase.config";
+import { Navigate, useNavigate } from "react-router-dom";
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -30,7 +31,21 @@ function Chat() {
   const [chatContainerStyle, setChatContainerStyle] = useState({});
   const [conversationContentStyle, setConversationContentStyle] = useState({});
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
-  
+  const [user , setUser]= useState(auth.User);
+console.log(auth);
+console.log(user);
+const Navigate = useNavigate();
+useEffect(()=>{
+  const unsub = auth.onAuthStateChanged((user)=>{
+    if(user){
+      setUser(user); 
+      // current user has been set here... 
+    }else{
+      Navigate("/");
+    }
+  });
+  return () => unsub();
+},[Navigate])
 
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
@@ -73,6 +88,7 @@ function Chat() {
     setSidebarStyle,
     setChatContainerStyle,
   ]);
+  
 
   return (
     <>
@@ -107,6 +123,7 @@ function Chat() {
                   style={conversationContentStyle}
                 />
               </Conversation>
+              
             </ConversationList>
           </Sidebar>
           <ChatContainer style={chatContainerStyle}>

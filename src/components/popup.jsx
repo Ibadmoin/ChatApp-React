@@ -10,8 +10,8 @@ import { FaCheck } from "react-icons/fa";
 import {EmojiPickerComponent} from "./Comp"
 import { FaSmile } from "react-icons/fa";
 import { CiFaceSmile } from "react-icons/ci";
-
-
+import { auth } from "../Firebase.config";
+import { useNavigate } from "react-router-dom";
 const customStyles = {
   content: {
     minWidth: "350px",
@@ -31,14 +31,14 @@ const customStyles = {
 // Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement(document.getElementById("root"));
 
-function UpdatePopUp({ isOpen, closeModal }) {
+function UpdatePopUp({ isOpen, closeModal ,}) {
   let subtitle;
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("ibad");
   const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
+const navigate = useNavigate(); 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
@@ -76,6 +76,21 @@ const handleEmojiSelect = (emoji) => {
     setIsEditing(false);
   };
 
+  // lgout and changing state here
+
+ const handleLogout = ()=>{
+  auth
+    .signOut()
+    .then(() => {
+      console.log("logout hogaya hai");
+      navigate("/")
+      
+    })
+    .catch((error) => {
+      console.error("Error during logout:", error);
+    });
+  
+ } 
   return (
     <div>
       <Modal
@@ -183,6 +198,7 @@ const handleEmojiSelect = (emoji) => {
               
             </div>
           </div>
+          <button onClick={handleLogout} className="logOutBtn">Log Out</button>
         </div>
       </Modal>
     </div>
