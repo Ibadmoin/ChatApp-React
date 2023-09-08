@@ -1,18 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./auth.css";
 import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
 import { CgSpinner } from "react-icons/cg";
 import OtpInput from "otp-input-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"
+import { auth, RecaptchaVerifier} from '../../Firebase.config'
 function Auth() {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
-// testing
+  const [otpComplete, setOtpComplete] = useState(true);
+  useEffect(()=>{
+    otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
+  console.log(auth)
+
+  }, [otp])
+const handleSubmit = ()=>{
+  setShowOTP(true)
+}
+const otpSubmit = ()=>{
+  setLoading(true)
+  setOtpComplete(true)
+  console.log('ibad')
+}
+console.log(otp)
+
   return (
+    <>
     <section className="authSection">
       <div>
         {user ? (
@@ -43,7 +60,7 @@ function Auth() {
               autoFocus
               className="opt-container"
             ></OtpInput>
-            <button className="verifyBtn">
+            <button disabled ={otpComplete} onClick = {otpSubmit}  className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
@@ -59,7 +76,7 @@ function Auth() {
               Verify your phone number
             </label>
             <PhoneInput  country={"pk"} value={ph} onChange={setPh} className="ph-container"/>
-            <button className="verifyBtn">
+            <button onClick = {handleSubmit} className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
@@ -71,6 +88,10 @@ function Auth() {
         )}
       </div>
     </section>
+    <div id="reCaptchaContainer">
+
+    </div>
+    </>
   );
 }
 
