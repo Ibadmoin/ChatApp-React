@@ -43,7 +43,6 @@ function ToastExample({type,text}) {
 
    return (
       <>
-        <button onClick={notify}>Notify</button>;
         <ToastContainer  />
       </>
     );

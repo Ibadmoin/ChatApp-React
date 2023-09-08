@@ -14,13 +14,7 @@ import UserImgContainer from "./components/UserImgContainer";
 
 
 function App() {
-  const notify =()=>{
-    toast('Wow! SO easy');
-    toast.warn("Warning Notification !", {
-      position: toast.POSITION.TOP_CENTER
-    });
-
-  }
+ 
   return (
     
     <div className="Container">
