@@ -8,7 +8,7 @@ import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import {IoIosCheckmarkCircle} from 'react-icons/io'
 
 Modal.setAppElement(document.getElementById("root"));
-export default function ProfileUploader() {
+export default function ProfileUploader({updateUserImage ,userImageUrl}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [editor, setEditor] = useState(null);
@@ -45,7 +45,11 @@ const handelImageEdit = () => {
   if (editor) {
     const canvas = editor.getImageScaledToCanvas();
     const editedImageURL = canvas.toDataURL("image/jpeg"); // Get edited image as base64 URL
-    console.log(editedImageURL); // Log the edited image URL to the console
+    console.log(editedImageURL);
+    updateUserImage(editedImageURL);
+    // store image from firebase here
+
+     // Log the edited image URL to the console
     closeModal();
   }
 };
@@ -58,7 +62,7 @@ const handelImageEdit = () => {
         onClick={() => document.querySelector('input[type="file"]').click()}
       >
         <img
-          src="https://wellgroomedgentleman.com/media/images/Tony_Stark_Beard_with_Quiff_Hairstyle.width-800.jpg"
+          src={userImageUrl}
           alt=""
         />
         <div className="overlay">

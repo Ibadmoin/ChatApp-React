@@ -31,11 +31,11 @@ const customStyles = {
 // Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement(document.getElementById("root"));
 
-function UpdatePopUp({ isOpen, closeModal ,}) {
+function UpdatePopUp({ isOpen, closeModal ,updateUserImage, userImageUrl,updateUserName,userName }) {
   let subtitle;
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("ibad");
+  const [name, setName] = useState(userName);
   const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 const navigate = useNavigate(); 
@@ -74,6 +74,8 @@ const handleEmojiSelect = (emoji) => {
 
   const handleSaveClick = () => {
     setIsEditing(false);
+    const userName = name;
+    updateUserName(userName);
   };
 
   // lgout and changing state here
@@ -144,7 +146,7 @@ const handleEmojiSelect = (emoji) => {
             margin: "15px auto",
           }}
         >
-          <ProfileUploader />
+          <ProfileUploader userImageUrl={userImageUrl} updateUserImage={updateUserImage} />
 
           <div className="editProfileDiv">
             <div>

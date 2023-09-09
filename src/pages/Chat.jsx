@@ -32,6 +32,7 @@ function Chat() {
   const [chatContainerStyle, setChatContainerStyle] = useState({});
   const [conversationContentStyle, setConversationContentStyle] = useState({});
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
+  const [userImage,setUserImage]= useState('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU')
 
 
 
@@ -76,7 +77,11 @@ function Chat() {
     setSidebarStyle,
     setChatContainerStyle,
   ]);
-  
+ 
+  // updating image on UI
+  const updateUserImage = (newImageUrl)=>{
+    setUserImage(newImageUrl);
+  }
 
   return (
     <>
@@ -90,8 +95,9 @@ function Chat() {
           <Sidebar position="left" scrollable={false} style={sidebarStyle}>
 
             <UserDetail
-              imgUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU"
+              imgUrl={userImage}
               userName="Muhammad Ibad moin"
+              updateUserImage={updateUserImage}
             />
             <Search placeholder="Search..." style={searchBoxStyle} />
             <ConversationList>

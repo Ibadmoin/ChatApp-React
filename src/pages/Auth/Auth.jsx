@@ -16,7 +16,6 @@ function Auth() {
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
   const [otpComplete, setOtpComplete] = useState(true);
-  const [isSendingCode,setIsSendingCode]= useState(false);
   const navigate = useNavigate();
   useEffect(()=>{
     otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
@@ -63,16 +62,13 @@ function onCaptchVerify(){
   }
 }
 
-async function onSignUp  (){
+async function onSignUp (){
   setLoading(true);
   await onCaptchVerify();
 
   const appVerifier = window.recaptchaVerifier;
   const formatPhone = '+' + ph;
-  try{
-    
-  }
-  signInWithPhoneNumber(auth, formatPhone, appVerifier)
+ await signInWithPhoneNumber(auth, formatPhone, appVerifier)
     .then((confirmationResult) => {
       
       window.confirmationResult = confirmationResult;
