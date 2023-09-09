@@ -16,6 +16,7 @@ function Auth() {
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
   const [otpComplete, setOtpComplete] = useState(true);
+  const [isSendingCode,setIsSendingCode]= useState(false);
   const navigate = useNavigate();
   useEffect(()=>{
     otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
@@ -29,23 +30,6 @@ const handleSubmit = ()=>{
 }
 
 // change auth stated here 
-useEffect(() => {
-  const unsub = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUser(user);
-    } else {
-      setUser(null);
-    }
-  });
-  return () => unsub();
-}, [user]);
-
-useEffect(() => {
-  if (user) {
-    navigate("/chat"); // Navigate to "/chat" only when a user is authenticated.
-  }
-
-}, [user, navigate]);
 
 const otpSubmit = ()=>{
   if(confirmationResult){
@@ -79,12 +63,15 @@ function onCaptchVerify(){
   }
 }
 
-function onSignUp (){
+async function onSignUp  (){
   setLoading(true);
-  onCaptchVerify();
+  await onCaptchVerify();
 
   const appVerifier = window.recaptchaVerifier;
   const formatPhone = '+' + ph;
+  try{
+    
+  }
   signInWithPhoneNumber(auth, formatPhone, appVerifier)
     .then((confirmationResult) => {
       

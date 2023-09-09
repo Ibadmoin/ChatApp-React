@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import  "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MainContainer,
@@ -21,7 +21,8 @@ import {
 
 import { UserDetail, } from "../components/Comp";
 import { auth } from "../Firebase.config";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../Context/AuthContext";
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -31,21 +32,8 @@ function Chat() {
   const [chatContainerStyle, setChatContainerStyle] = useState({});
   const [conversationContentStyle, setConversationContentStyle] = useState({});
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
-  const [user , setUser]= useState(auth.User);
-console.log(auth);
-console.log(user);
-const Navigate = useNavigate();
-useEffect(()=>{
-  const unsub = auth.onAuthStateChanged((user)=>{
-    if(user){
-      setUser(user); 
-      // current user has been set here... 
-    }else{
-      Navigate("/");
-    }
-  });
-  return () => unsub();
-},[Navigate])
+
+
 
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
@@ -152,7 +140,16 @@ useEffect(()=>{
                 }}
               />
             </MessageList>
-            <MessageInput   placeholder="Type message here" />
+            <MessageInput value={messageInputValue} onChange={(innerHtml, textContent, innerText, nodes) =>{
+              setMessageInputValue(innerText);
+            }}
+            onSend={(innerHtml, textContent, innerText, nodes)=>{
+              if(innerText.trim() !== ""){
+                console.log(messageInputValue);
+                setMessageInputValue("");
+              }
+            }} 
+             placeholder="Type message here" />
           </ChatContainer>
         </MainContainer>
       </div>
