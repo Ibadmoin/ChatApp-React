@@ -68,12 +68,14 @@ const createUserDataBase = async(user)=>{
         displayName : "",
         profilePicture: "",
         lastSeen : null,
+        OnlineStatus : false,
         contacts:[],
         chats:[],
         blockedUsers:[],
 
 
       })
+      console.log("Database created successfully.")
     }
   }catch(err){
     console.log("Error creating user in the database:",err);

@@ -20,7 +20,8 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 
 import { UserDetail, } from "../components/Comp";
-import { auth } from "../Firebase.config";
+import { auth ,db} from "../Firebase.config";
+import { collection,doc,getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 function Chat() {
@@ -34,6 +35,32 @@ function Chat() {
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
   const [userImage,setUserImage]= useState('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU')
   const [userName, setUserName] = useState("ibad");
+  const [userData,setUserData]= useState(null);
+
+  // updating on data changes
+  useEffect(()=>{
+
+   const fetchUserData =async ()=>{
+    const userId = "uid";
+    const userDocRef = doc(db, "users",userId);
+    const docSnap = await getDoc(userDocRef);
+
+    if(docSnap.exists()){
+      const userDoc = docSnap.data();
+      setUserData(userDoc);
+
+    }else{
+      console.log("No such user document found!");
+    }
+   }
+
+   fetchUserData();
+
+
+
+  },[]);
+
+  console.log("Userdata=> ",userData);
 
 
 
