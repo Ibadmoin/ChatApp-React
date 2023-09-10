@@ -5,7 +5,7 @@ import { CgSpinner } from "react-icons/cg";
 import OtpInput from "otp-input-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"
-import { auth, RecaptchaVerifier} from '../../Firebase.config'
+import { auth, RecaptchaVerifier,db} from '../../Firebase.config'
 import { signInWithPhoneNumber, onAuthStateChanged } from "firebase/auth";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -40,8 +40,11 @@ const otpSubmit = ()=>{
   if(confirmationResult){
     confirmationResult.confirm(otp).then(async(res)=>{
       console.log(res);
-      setUser(res.user)
+      setUser(res.user);
       setLoading(false);
+
+      createUserDataBase(res.user);
+
     }).catch((err)=>{
       console.log(err);
       toast.error("OTP is not Correct!");
@@ -50,6 +53,32 @@ const otpSubmit = ()=>{
   // setLoading(true)
   // setOtpComplete(true)
   // console.log('ibad')
+}
+
+
+// database fields intialized;
+const createUserDataBase = async(user)=>{
+  try{
+    const userDocRef = db.collection("users").doc(user.uid);
+    const userDoc = await userDocRef.get();
+    if(!userDoc.exists){
+      await userDocRef.set({
+        uid :user.uid,
+        phoneNumber : "01212012139",
+        displayName : "",
+        profilePicture: "",
+        lastSeen : null,
+        contacts:[],
+        chats:[],
+        blockedUsers:[],
+
+
+      })
+    }
+  }catch(err){
+    console.log("Error creating user in the database:",err);
+  }
+
 }
 
  function onCaptchVerify(){
