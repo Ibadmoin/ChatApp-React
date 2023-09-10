@@ -5,14 +5,9 @@ import UpdatePopUp from "./UpdatePopUp";
 import { useState } from "react";
 
 
-function UserDetail({imgUrl,updateUserImage}) {
+function UserDetail({imgUrl,updateUserImage,updateUserName, userName}) {
   const [isEditModalOpen, setIsEditModalOpen]= useState(false);
-  const [userName,setUserName]= useState('Chalify User')
-  
-  const updateUserName = (newName)=>{
-    setUserName(newName)
 
-  }
   const handelEditClick = ()=>{
     setIsEditModalOpen(true);
     // console.log("clicked");

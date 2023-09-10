@@ -16,12 +16,18 @@ function Auth() {
   const [showOTP,setShowOTP]= useState(false);
   const [user,setUser]= useState(null)
   const [otpComplete, setOtpComplete] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false)
   const navigate = useNavigate();
   useEffect(()=>{
     otp.length >= 6 ? setOtpComplete(false) : setOtpComplete(true)
   console.log(auth)
 
-  }, [otp])
+  }, [otp]);
+
+  useEffect(()=>{
+    ph.length >=6 ?setIsDisabled(false): setIsDisabled(true);
+    console.log(ph)
+  },[ph])
 const handleSubmit = ()=>{
   setShowOTP(!showOTP)
   toast.error("toast khul gaya")
@@ -46,12 +52,13 @@ const otpSubmit = ()=>{
   // console.log('ibad')
 }
 
-function onCaptchVerify(){
+ function onCaptchVerify(){
   if(!window.recaptchaVerifier){
     window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'invisible',
+      'size': 'normal',
       'callback': (response) => {
         onSignUp();
+        console.log(response);
         
        
       },
@@ -62,31 +69,32 @@ function onCaptchVerify(){
   }
 }
 
-async function onSignUp (){
+  const onSignUp = async ()=>{
+   onCaptchVerify();
+  console.log(ph);
   setLoading(true);
-  await onCaptchVerify();
-
-  const appVerifier = window.recaptchaVerifier;
+  setIsDisabled(true);
+  const appVerifier =window.recaptchaVerifier;
   const formatPhone = '+' + ph;
- await signInWithPhoneNumber(auth, formatPhone, appVerifier)
-    .then((confirmationResult) => {
-      
+  try{
+    await signInWithPhoneNumber(auth,formatPhone, appVerifier ).then((confirmationResult)=>{
       window.confirmationResult = confirmationResult;
       setLoading(false);
       setShowOTP(true);
       setOtpComplete(true);
-      toast.success("OTP has Successfully Sended!");
-      window.recaptchaVerifier = null;
+      toast.success("OTP has successfully Sended!");
+      window.recaptchaVerifier = null
       
-    }).catch((error) => {
-      console.log("error araha hai"+error);
-      setLoading(false);
-      toast.error("Too many Request, Please wait for 1 hour!");
+    })
 
-
-    });
-
+  }catch(err){
+    console.log( err );
+    setLoading(false);
+    
+  }
 }
+
+
 
 
 
@@ -98,7 +106,7 @@ async function onSignUp (){
       <div>
        <Toaster 
    toastOptions={{duration: 4000,}}/>
-        <div id="recaptcha-container"></div>
+     
         {user ? (
 
         <h2 className="Heading">
@@ -146,13 +154,14 @@ async function onSignUp (){
               Verify your phone number
             </label>
             <PhoneInput  country={"pk"} value={ph} onChange={setPh} className="ph-container"/>
-            <button onClick = {onSignUp} className="verifyBtn">
+            <button disabled={isDisabled} onClick = {onSignUp} className="verifyBtn">
               {loading && (
                 <CgSpinner size={20} className="animate-spin spinner" />
               )}
               <span>Send code via SMS</span>
             </button>
-            <button onClick={handleSubmit}>Otp screen</button>
+            <button  onClick={handleSubmit}>Otp screen</button>
+            <div id="recaptcha-container"></div>
 
           </>
           }

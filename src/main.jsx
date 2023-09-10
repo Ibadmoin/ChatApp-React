@@ -8,6 +8,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthContextProvider>
     <React.StrictMode>
       <App />
-    </React.StrictMode>,
+    </React.StrictMode>
   </AuthContextProvider>
 );
