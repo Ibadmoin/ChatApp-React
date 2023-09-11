@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useContext } from "react";
-import  "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MainContainer,
   ChatContainer,
@@ -17,13 +17,15 @@ import {
   InfoButton,
   TypingIndicator,
   MessageSeparator,
+  
 } from "@chatscope/chat-ui-kit-react";
 
-import { UserDetail, } from "../components/Comp";
-import { auth ,db} from "../Firebase.config";
-import { collection,doc,getDoc } from "firebase/firestore";
+import { UserDetail } from "../components/Comp";
+import { auth, db } from "../Firebase.config";
+import { collection, doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
+import { ChatOptions } from "../components/Comp";
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -33,36 +35,31 @@ function Chat() {
   const [chatContainerStyle, setChatContainerStyle] = useState({});
   const [conversationContentStyle, setConversationContentStyle] = useState({});
   const [conversationAvatarStyle, setConversationAvatarStyle] = useState({});
-  const [userImage,setUserImage]= useState('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU')
+  const [userImage, setUserImage] = useState(
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU"
+  );
   const [userName, setUserName] = useState("ibad");
-  const [userData,setUserData]= useState(null);
+  const [userData, setUserData] = useState(null);
 
   // updating on data changes
-  useEffect(()=>{
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userId = "uid";
+      const userDocRef = doc(db, "users", userId);
+      const docSnap = await getDoc(userDocRef);
 
-   const fetchUserData =async ()=>{
-    const userId = "uid";
-    const userDocRef = doc(db, "users",userId);
-    const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        const userDoc = docSnap.data();
+        setUserData(userDoc);
+      } else {
+        console.log("No such user document found!");
+      }
+    };
 
-    if(docSnap.exists()){
-      const userDoc = docSnap.data();
-      setUserData(userDoc);
+    fetchUserData();
+  }, []);
 
-    }else{
-      console.log("No such user document found!");
-    }
-   }
-
-   fetchUserData();
-
-
-
-  },[]);
-
-  console.log("Userdata=> ",userData);
-
-
+  console.log("Userdata=> ", userData);
 
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
@@ -105,15 +102,15 @@ function Chat() {
     setSidebarStyle,
     setChatContainerStyle,
   ]);
- 
+
   // updating image on UI
-  const updateUserImage = (newImageUrl)=>{
+  const updateUserImage = (newImageUrl) => {
     setUserImage(newImageUrl);
-  }
+  };
   // update username on UI
-  const updateUserName = (updatedUserName)=>{
+  const updateUserName = (updatedUserName) => {
     setUserName(updatedUserName);
-  }
+  };
 
   return (
     <>
@@ -125,7 +122,6 @@ function Chat() {
       >
         <MainContainer responsive>
           <Sidebar position="left" scrollable={false} style={sidebarStyle}>
-
             <UserDetail
               imgUrl={userImage}
               userName={userName}
@@ -140,7 +136,7 @@ function Chat() {
                     "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
                   }
                   name="Lilly"
-                  status="available"
+                  status="away"
                   style={conversationAvatarStyle}
                 />
                 <Conversation.Content
@@ -150,7 +146,22 @@ function Chat() {
                   style={conversationContentStyle}
                 />
               </Conversation>
-              
+              <Conversation onClick={handleConversationClick}>
+                <Avatar
+                  src={
+                    "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
+                  }
+                  name="Lilly"
+                  status="away"
+                  style={conversationAvatarStyle}
+                />
+                <Conversation.Content
+                  name="Lilly"
+                  lastSenderName="Lilly"
+                  info="Yes i can do it for you"
+                  style={conversationContentStyle}
+                />
+              </Conversation>
             </ConversationList>
           </Sidebar>
           <ChatContainer style={chatContainerStyle}>
@@ -166,9 +177,12 @@ function Chat() {
                 userName="Zoe"
                 info="Active 10 mins ago"
               />
+              <ConversationHeader.Actions>
+                <ChatOptions />
+              </ConversationHeader.Actions>
             </ConversationHeader>
             <MessageList>
-              <MessageSeparator content="thursday, 15 July 2021" />
+              <MessageSeparator content="thursday, 15 July 2023" />
               <Message
                 model={{
                   message: "Hello my friend",
@@ -179,16 +193,19 @@ function Chat() {
                 }}
               />
             </MessageList>
-            <MessageInput value={messageInputValue} onChange={(innerHtml, textContent, innerText, nodes) =>{
-              setMessageInputValue(innerText);
-            }}
-            onSend={(innerHtml, textContent, innerText, nodes)=>{
-              if(innerText.trim() !== ""){
-                console.log(messageInputValue);
-                setMessageInputValue("");
-              }
-            }} 
-             placeholder="Type message here" />
+            <MessageInput
+              value={messageInputValue}
+              onChange={(innerHtml, textContent, innerText, nodes) => {
+                setMessageInputValue(innerText);
+              }}
+              onSend={(innerHtml, textContent, innerText, nodes) => {
+                if (innerText.trim() !== "") {
+                  console.log(messageInputValue);
+                  setMessageInputValue("");
+                }
+              }}
+              placeholder="Type message here"
+            />
           </ChatContainer>
         </MainContainer>
       </div>

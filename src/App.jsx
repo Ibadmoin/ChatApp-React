@@ -7,7 +7,7 @@ import Auth from "./pages/Auth/Auth"
 //-----------Components------------------
 import "./App.css";
 import UpdatePopUp from "./components/UpdatePopUp";
-import { Button, Input,EmojiPickerComponent } from "./components/Comp";
+import { Button, Input,EmojiPickerComponent,ChatOptions } from "./components/Comp";
 import UserImgContainer from "./components/UserImgContainer";
 import Routes from "./Routers";
 import { AuthContext } from "./Context/AuthContext";

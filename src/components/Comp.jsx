@@ -4,6 +4,7 @@ import Button from './Button';
 import Input from './Input';
 import ProfileUploader from './ProfileUploader'
 import EmojiPickerComponent from './EmojiComp'
+import ChatOptions from './ChatOptions';
 
 
 
@@ -13,6 +14,6 @@ import EmojiPickerComponent from './EmojiComp'
 
 
 
-export {UserDetail,Button,Input,ProfileUploader,EmojiPickerComponent }
+export {UserDetail,Button,Input,ProfileUploader,EmojiPickerComponent,ChatOptions }
 
 
