@@ -5,6 +5,7 @@ import Input from './Input';
 import ProfileUploader from './ProfileUploader'
 import EmojiPickerComponent from './EmojiComp'
 import ChatOptions from './ChatOptions';
+import AddUserByPhoneNumber from "./AddUserByPhoneNumber";
 
 
 
@@ -14,6 +15,6 @@ import ChatOptions from './ChatOptions';
 
 
 
-export {UserDetail,Button,Input,ProfileUploader,EmojiPickerComponent,ChatOptions }
+export {UserDetail,Button,Input,ProfileUploader,EmojiPickerComponent,ChatOptions ,AddUserByPhoneNumber}
 
 

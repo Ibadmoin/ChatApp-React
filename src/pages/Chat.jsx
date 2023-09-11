@@ -128,7 +128,7 @@ function Chat() {
               updateUserName={updateUserName}
               updateUserImage={updateUserImage}
             />
-            <Search placeholder="Search..." style={searchBoxStyle} />
+            <Search placeholder="Search User..." style={searchBoxStyle} />
             <ConversationList>
               <Conversation onClick={handleConversationClick}>
                 <Avatar

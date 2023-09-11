@@ -7,7 +7,7 @@ import { FaCamera } from "react-icons/fa";
 import { ProfileUploader } from "./Comp";
 import { MdEdit } from "react-icons/md";
 import { FaCheck } from "react-icons/fa";
-import {EmojiPickerComponent} from "./Comp"
+import {EmojiPickerComponent, AddUserByPhoneNumber} from "./Comp"
 import { FaSmile } from "react-icons/fa";
 import { CiFaceSmile } from "react-icons/ci";
 import { auth } from "../Firebase.config";
@@ -197,9 +197,9 @@ const handleEmojiSelect = (emoji) => {
                 </span>
               )}
          
-              
             </div>
           </div>
+              <AddUserByPhoneNumber />
           <button onClick={handleLogout} className="logOutBtn">Log Out</button>
         </div>
       </Modal>
