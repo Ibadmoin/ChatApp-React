@@ -37,10 +37,16 @@ function UpdatePopUp({ isOpen, closeModal ,updateUserImage, userImageUrl,updateU
 
   const [isEditing, setIsEditing] = useState(false);
   
+  console.log(userName)
+  
   const [name, setName] = useState(userName);
   const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
+useEffect(()=>{
+setName(userName)
+},[userName])
+
 const navigate = useNavigate(); 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -78,7 +84,14 @@ const handleEmojiSelect = (emoji) => {
   const handleSaveClick = () => {
     setIsEditing(false);
     const userName = name;
-    updateUserName(userName);
+    
+    
+    updateUserName(userName).then(()=>{
+      console.log(userName)
+      console.log("Update userName succesfully")
+    }).catch((err)=>{
+      console.log(err)
+    })
   };
 
   // lgout and changing state here

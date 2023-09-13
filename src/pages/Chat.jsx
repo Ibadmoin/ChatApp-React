@@ -56,7 +56,7 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
   useEffect(() => {
     const fetchUserData = async () => {
       const userId = currentUser.uid;
-      const userDocRef = doc(db, "users", `${userId}`);
+      const userDocRef = doc(db, "users", `${userId}` );
       const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
@@ -71,7 +71,7 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
 
     fetchUserData();
      
-  }, []);
+  }, [currentUser.uid]);
 
   console.log("Userdata=> ", userData);
 
@@ -116,6 +116,8 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
     setSidebarStyle,
     setChatContainerStyle,
   ]);
+  // upaloding image url function
+  
 
   // updating image on UI
   const updateUserImage = (newImageUrl) => {
@@ -124,10 +126,10 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
   // update username on UI
   const updateUserName = async(updatedUserName) => {
     
-    setUserName(updatedUserName);
     await updateDoc(userDocRef,{
-      displayName : userName
+      displayName : updatedUserName
     }).then(()=>{
+      setUserName(updatedUserName);
       console.log("name Updated")
     }).catch((err)=>{
       console.log("Error updating name");
