@@ -8,14 +8,14 @@ export default function Routers() {
   const { currentUser } = useContext(AuthContext);
 
   const ProtectedRoute = ({ children }) => {
-    if (currentUser) {
+    if (!currentUser) {
       return <Navigate to="/" />;
     }
     return children;
   };
 
   const UnAuthenticatedRoute = ({children})=>{
-    if(!currentUser){
+    if(currentUser){
       return <Navigate to="chat"/>
 
     }

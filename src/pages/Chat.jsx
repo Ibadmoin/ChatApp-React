@@ -22,7 +22,7 @@ import {
 
 import { UserDetail } from "../components/Comp";
 import { auth, db } from "../Firebase.config";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
@@ -38,25 +38,39 @@ function Chat() {
   const [userImage, setUserImage] = useState(
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU"
   );
-  const [userName, setUserName] = useState("ibad");
+  const [userName, setUserName] = useState("chat user");
   const [userData, setUserData] = useState(null);
+  
+const AuthCurrentUser  = useContext(AuthContext);
+const currentUser = AuthCurrentUser.currentUser;
+// ------------
+// User document Reference
+const userDocRef = doc(db , "users", `${currentUser.uid}`);
+// ------------
+
+
+
+
 
   // updating on data changes
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = "uid";
-      const userDocRef = doc(db, "users", userId);
+      const userId = currentUser.uid;
+      const userDocRef = doc(db, "users", `${userId}`);
       const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
         const userDoc = docSnap.data();
         setUserData(userDoc);
+        setUserName(userDoc.displayName)
+        
       } else {
         console.log("No such user document found!");
       }
     };
 
     fetchUserData();
+     
   }, []);
 
   console.log("Userdata=> ", userData);
@@ -108,8 +122,17 @@ function Chat() {
     setUserImage(newImageUrl);
   };
   // update username on UI
-  const updateUserName = (updatedUserName) => {
+  const updateUserName = async(updatedUserName) => {
+    
     setUserName(updatedUserName);
+    await updateDoc(userDocRef,{
+      displayName : userName
+    }).then(()=>{
+      console.log("name Updated")
+    }).catch((err)=>{
+      console.log("Error updating name");
+    })
+    
   };
 
   return (

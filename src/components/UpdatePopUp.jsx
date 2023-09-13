@@ -33,11 +33,14 @@ Modal.setAppElement(document.getElementById("root"));
 
 function UpdatePopUp({ isOpen, closeModal ,updateUserImage, userImageUrl,updateUserName,userName }) {
   let subtitle;
+  
 
   const [isEditing, setIsEditing] = useState(false);
+  
   const [name, setName] = useState(userName);
   const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
 const navigate = useNavigate(); 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -157,7 +160,8 @@ const handleEmojiSelect = (emoji) => {
                 <div className="innerEditWrapper">
                   <input
                     type="text"
-                    value={name || ''}
+                    // here...
+                    value={name}
                     onChange={handleNameChange}
                     maxLength={25}
                     autoFocus
