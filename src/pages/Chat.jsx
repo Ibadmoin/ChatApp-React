@@ -21,7 +21,16 @@ import {
 
 import { UserDetail } from "../components/Comp";
 import { auth, db, storage } from "../Firebase.config";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  where,
+  query,
+  getDocs,
+} from "firebase/firestore";
 import {
   ref,
   uploadBytes,
@@ -44,8 +53,10 @@ function Chat() {
   const [userImage, setUserImage] = useState(
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiKrcXJbAstRhWT5TMNtvZOwZCa3-EGd0qZw&usqp=CAU"
   );
+
   const [userName, setUserName] = useState("chat user");
   const [userData, setUserData] = useState(null);
+  const [contacts, setContacts] = useState([]);
 
   const AuthCurrentUser = useContext(AuthContext);
   const currentUser = AuthCurrentUser.currentUser;
@@ -65,7 +76,10 @@ function Chat() {
         const userDoc = docSnap.data();
         setUserData(userDoc);
         setUserName(userDoc.displayName);
-        setUserImage(userDoc.profilePicture)
+        setUserImage(userDoc.profilePicture);
+        if (userDoc.contacts) {
+          setContacts(userDoc.contacts);
+        }
       } else {
         console.log("No such user document found!");
       }
@@ -75,7 +89,6 @@ function Chat() {
   }, [currentUser.uid]);
 
   console.log("Userdata=> ", userData);
-
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
   const handleConversationClick = useCallback(() => {
@@ -150,37 +163,34 @@ function Chat() {
     });
   };
   // Convert base64 URL to Blob
-function dataURLtoBlob(dataURL) {
-  const parts = dataURL.split(";base64,");
-  const contentType = parts[0].split(":")[1];
-  const byteCharacters = atob(parts[1]);
-  const byteArrays = [];
-  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-    const slice = byteCharacters.slice(offset, offset + 512);
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
+  function dataURLtoBlob(dataURL) {
+    const parts = dataURL.split(";base64,");
+    const contentType = parts[0].split(":")[1];
+    const byteCharacters = atob(parts[1]);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
+    return new Blob(byteArrays, { type: contentType });
   }
-  return new Blob(byteArrays, { type: contentType });
-}
 
   // updating image on UI
-  const updateUserImage =async (newImageUrl) => {
+  const updateUserImage = async (newImageUrl) => {
     const file = dataURLtoBlob(newImageUrl);
-    console.log(file)
-    
+    console.log(file);
+
     const imageUrl = await uploadFile(file, currentUser.uid);
-    
-    await updateDoc(userDocRef,{
-      profilePicture : imageUrl,
-    })
+
+    await updateDoc(userDocRef, {
+      profilePicture: imageUrl,
+    });
     setUserImage(newImageUrl);
-
-    
-
   };
   // update username on UI
   const updateUserName = async (updatedUserName) => {
@@ -196,8 +206,22 @@ function dataURLtoBlob(dataURL) {
       });
   };
 
+  // // getting user data from contact list here
+  // async function fetchContactsData(contactNumber) {
+  //   const q = query(
+  //     collection(db, "users"),
+  //     where("phoneNumber", "==", contactNumber)
+  //   );
+  //   const querySnapshot = await getDoc(q);
+  //   if(querySnapshot.exists()){
+  //     const userData = querySnapshot.data();
+  //     return userData;
+  //   }else{
+  //     return null;
+  //     console.log("document not found of this user")
+  //   }
 
-  
+  // }
 
   return (
     <>
@@ -207,7 +231,6 @@ function dataURLtoBlob(dataURL) {
           position: "relative",
         }}
       >
-    
         <MainContainer responsive>
           <Sidebar position="left" scrollable={false} style={sidebarStyle}>
             <UserDetail
@@ -218,38 +241,36 @@ function dataURLtoBlob(dataURL) {
             />
             <Search placeholder="Search User..." style={searchBoxStyle} />
             <ConversationList>
-              <Conversation onClick={handleConversationClick}>
-                <Avatar
-                  src={
-                    "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
-                  }
-                  name="Lilly"
-                  status="away"
-                  style={conversationAvatarStyle}
-                />
-                <Conversation.Content
-                  name="Lilly"
-                  lastSenderName="Lilly"
-                  info="Yes i can do it for you"
-                  style={conversationContentStyle}
-                />
-              </Conversation>
-              <Conversation onClick={handleConversationClick}>
-                <Avatar
-                  src={
-                    "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
-                  }
-                  name="Lilly"
-                  status="away"
-                  style={conversationAvatarStyle}
-                />
-                <Conversation.Content
-                  name="Lilly"
-                  lastSenderName="Lilly"
-                  info="Yes i can do it for you"
-                  style={conversationContentStyle}
-                />
-              </Conversation>
+              {contacts.map((contact, index) => {
+                console.log("Contact:", contact); // Log the contact data to the console
+                // fetchContactsData(contact).then((contactUserData)=>{
+                //   if(contactUserData){
+                //     console.log("user found")
+                //   }else{
+                //     console.log("user not found")
+                //   }
+                // })
+
+
+                return (
+                  <Conversation onClick={handleConversationClick} key={index}>
+                    <Avatar
+                      src={
+                        "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
+                      }
+                      name="Lilly"
+                      status="away"
+                      style={conversationAvatarStyle}
+                    />
+                    <Conversation.Content
+                      name="Lilly"
+                      lastSenderName="Lilly"
+                      info="Yes, I can do it for you"
+                      style={conversationContentStyle}
+                    />
+                  </Conversation>
+                );
+              })}
             </ConversationList>
           </Sidebar>
           <ChatContainer style={chatContainerStyle}>
@@ -266,7 +287,7 @@ function dataURLtoBlob(dataURL) {
                 info="Active 10 mins ago"
               />
               <ConversationHeader.Actions>
-                <ChatOptions  closeChat={()=>setSidebarVisible(true)} />
+                <ChatOptions closeChat={() => setSidebarVisible(true)} />
               </ConversationHeader.Actions>
             </ConversationHeader>
             <MessageList>
