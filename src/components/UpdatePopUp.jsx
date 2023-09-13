@@ -37,7 +37,6 @@ function UpdatePopUp({ isOpen, closeModal ,updateUserImage, userImageUrl,updateU
 
   const [isEditing, setIsEditing] = useState(false);
   
-  console.log(userName)
   
   const [name, setName] = useState(userName);
   const [limitCharacter, setlimitCharacter] = useState(25 - name.length);
@@ -87,7 +86,6 @@ const handleEmojiSelect = (emoji) => {
     
     
     updateUserName(userName).then(()=>{
-      console.log(userName)
       console.log("Update userName succesfully")
     }).catch((err)=>{
       console.log(err)

@@ -17,12 +17,18 @@ import {
   InfoButton,
   TypingIndicator,
   MessageSeparator,
-  
 } from "@chatscope/chat-ui-kit-react";
 
 import { UserDetail } from "../components/Comp";
-import { auth, db } from "../Firebase.config";
+import { auth, db, storage } from "../Firebase.config";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
@@ -40,37 +46,32 @@ function Chat() {
   );
   const [userName, setUserName] = useState("chat user");
   const [userData, setUserData] = useState(null);
-  
-const AuthCurrentUser  = useContext(AuthContext);
-const currentUser = AuthCurrentUser.currentUser;
-// ------------
-// User document Reference
-const userDocRef = doc(db , "users", `${currentUser.uid}`);
-// ------------
 
-
-
-
+  const AuthCurrentUser = useContext(AuthContext);
+  const currentUser = AuthCurrentUser.currentUser;
+  // ------------
+  // User document Reference
+  const userDocRef = doc(db, "users", `${currentUser.uid}`);
+  // ------------
 
   // updating on data changes
   useEffect(() => {
     const fetchUserData = async () => {
       const userId = currentUser.uid;
-      const userDocRef = doc(db, "users", `${userId}` );
+      const userDocRef = doc(db, "users", `${userId}`);
       const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
         const userDoc = docSnap.data();
         setUserData(userDoc);
-        setUserName(userDoc.displayName)
-        
+        setUserName(userDoc.displayName);
+        setUserImage(userDoc.profilePicture)
       } else {
         console.log("No such user document found!");
       }
     };
 
     fetchUserData();
-     
   }, [currentUser.uid]);
 
   console.log("Userdata=> ", userData);
@@ -117,25 +118,86 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
     setChatContainerStyle,
   ]);
   // upaloding image url function
-  
+
+  const uploadFile = (file, uid) => {
+    return new Promise((resolve, reject) => {
+      const mountainsRef = ref(storage, `ProfilePictures/${uid}`);
+      const uploadTask = uploadBytesResumable(mountainsRef, file);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  };
+  // Convert base64 URL to Blob
+function dataURLtoBlob(dataURL) {
+  const parts = dataURL.split(";base64,");
+  const contentType = parts[0].split(":")[1];
+  const byteCharacters = atob(parts[1]);
+  const byteArrays = [];
+  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+    const slice = byteCharacters.slice(offset, offset + 512);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+  return new Blob(byteArrays, { type: contentType });
+}
 
   // updating image on UI
-  const updateUserImage = (newImageUrl) => {
-    setUserImage(newImageUrl);
-  };
-  // update username on UI
-  const updateUserName = async(updatedUserName) => {
+  const updateUserImage =async (newImageUrl) => {
+    const file = dataURLtoBlob(newImageUrl);
+    console.log(file)
+    
+    const imageUrl = await uploadFile(file, currentUser.uid);
     
     await updateDoc(userDocRef,{
-      displayName : updatedUserName
-    }).then(()=>{
-      setUserName(updatedUserName);
-      console.log("name Updated")
-    }).catch((err)=>{
-      console.log("Error updating name");
+      profilePicture : imageUrl,
     })
+    setUserImage(newImageUrl);
+
     
+
   };
+  // update username on UI
+  const updateUserName = async (updatedUserName) => {
+    await updateDoc(userDocRef, {
+      displayName: updatedUserName,
+    })
+      .then(() => {
+        setUserName(updatedUserName);
+        console.log("name Updated");
+      })
+      .catch((err) => {
+        console.log("Error updating name");
+      });
+  };
+
+
+  
 
   return (
     <>
@@ -145,6 +207,7 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
           position: "relative",
         }}
       >
+    
         <MainContainer responsive>
           <Sidebar position="left" scrollable={false} style={sidebarStyle}>
             <UserDetail
@@ -203,7 +266,7 @@ const userDocRef = doc(db , "users", `${currentUser.uid}`);
                 info="Active 10 mins ago"
               />
               <ConversationHeader.Actions>
-                <ChatOptions />
+                <ChatOptions  closeChat={()=>setSidebarVisible(true)} />
               </ConversationHeader.Actions>
             </ConversationHeader>
             <MessageList>

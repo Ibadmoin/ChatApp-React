@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MenuItem, IconButton, Menu } from '@mui/material';
 import {FiMoreVertical} from "react-icons/fi"
-export default function ChatOptions() {
+export default function ChatOptions({closeChat}) {
   const [selectedOption, setSelectedOption] = useState(null);
   const userChatOptions = ["Contact Info", "Clear Chat", "Block", "Close Chat"];
 
@@ -11,6 +11,9 @@ export default function ChatOptions() {
   const open = Boolean(selectedOption);
 
   const handleClose = (option) => {
+    if(option === "Close Chat" ){
+      closeChat()
+    }
     console.log("Selected option: ", option); // Corrected typo here
 
     setSelectedOption(null);
