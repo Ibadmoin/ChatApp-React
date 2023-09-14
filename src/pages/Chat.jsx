@@ -221,6 +221,40 @@ function Chat() {
 
   }
 
+  const [renderedConverstions, setRenderedConverstions] = useState([]);
+
+  useEffect(()=>{
+    const converstionComponents = [];
+    Promise.all(
+      contacts.map(async(contact,index)=>{
+        const contactUser = await fetchContactsData(contact);
+        if(contactUser){
+          converstionComponents.push( 
+          <Conversation key={index} onClick={handleConversationClick} >
+            <Avatar
+              src={
+                contactUser.profilePicture
+              }
+              name="Lilly"
+              status="away"
+              style={conversationAvatarStyle}
+            />
+            <Conversation.Content
+              name={contactUser.displayName}
+              lastSenderName="Lilly"
+              info="Yes, I can do it for you"
+              style={conversationContentStyle}
+            />
+          </Conversation>
+
+          );
+        }
+      })
+    ).then(()=>{
+      setRenderedConverstions(converstionComponents);
+    })
+  },[contacts]);
+
   return (
     <>
       <div
@@ -238,39 +272,8 @@ function Chat() {
               updateUserImage={updateUserImage}
             />
             <Search placeholder="Search User..." style={searchBoxStyle} />
-            <ConversationList>
-              {contacts.map((contact, index) => {
-                // console.log("Contact:", contact); // Log the contact data to the console
-             fetchContactsData(contact).then((contactUser)=>{
-              if(contactUser){
-                console.log(contactUser);
-                return(
-                  <Conversation onClick={handleConversationClick} key={index}>
-                  <Avatar
-                    src={
-                      "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
-                    }
-                    name="Lilly"
-                    status="away"
-                    style={conversationAvatarStyle}
-                  />
-                  <Conversation.Content
-                    name="Lilly"
-                    lastSenderName="Lilly"
-                    info="Yes, I can do it for you"
-                    style={conversationContentStyle}
-                  />
-                </Conversation>
-
-                )
-              }else{
-                console.log("lol uwaimo")
-              }
-             })
-
-
-               
-              })}
+            <ConversationList >
+              {renderedConverstions }
             </ConversationList>
           </Sidebar>
           <ChatContainer style={chatContainerStyle}>
