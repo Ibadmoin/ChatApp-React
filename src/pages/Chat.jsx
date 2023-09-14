@@ -88,7 +88,7 @@ function Chat() {
     fetchUserData();
   }, [currentUser.uid]);
 
-  console.log("Userdata=> ", userData);
+  // console.log("Userdata=> ", userData);
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
   const handleConversationClick = useCallback(() => {
@@ -207,21 +207,19 @@ function Chat() {
   };
 
   // // getting user data from contact list here
-  // async function fetchContactsData(contactNumber) {
-  //   const q = query(
-  //     collection(db, "users"),
-  //     where("phoneNumber", "==", contactNumber)
-  //   );
-  //   const querySnapshot = await getDoc(q);
-  //   if(querySnapshot.exists()){
-  //     const userData = querySnapshot.data();
-  //     return userData;
-  //   }else{
-  //     return null;
-  //     console.log("document not found of this user")
-  //   }
+  async function fetchContactsData(contactNumber) {
+    const q = query(collection(db, "users"), where("phoneNumber", "==", contactNumber));
+    const querySnapshot = await getDocs(q);
+    if(!querySnapshot.empty){
+      console.log("user found");
+      const userData = querySnapshot.docs[0].data();
+      return userData;
+    }else{
+      console.log('no user');
+      return null;
+    }
 
-  // }
+  }
 
   return (
     <>
@@ -242,34 +240,36 @@ function Chat() {
             <Search placeholder="Search User..." style={searchBoxStyle} />
             <ConversationList>
               {contacts.map((contact, index) => {
-                console.log("Contact:", contact); // Log the contact data to the console
-                // fetchContactsData(contact).then((contactUserData)=>{
-                //   if(contactUserData){
-                //     console.log("user found")
-                //   }else{
-                //     console.log("user not found")
-                //   }
-                // })
-
-
-                return (
+                // console.log("Contact:", contact); // Log the contact data to the console
+             fetchContactsData(contact).then((contactUser)=>{
+              if(contactUser){
+                console.log(contactUser);
+                return(
                   <Conversation onClick={handleConversationClick} key={index}>
-                    <Avatar
-                      src={
-                        "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
-                      }
-                      name="Lilly"
-                      status="away"
-                      style={conversationAvatarStyle}
-                    />
-                    <Conversation.Content
-                      name="Lilly"
-                      lastSenderName="Lilly"
-                      info="Yes, I can do it for you"
-                      style={conversationContentStyle}
-                    />
-                  </Conversation>
-                );
+                  <Avatar
+                    src={
+                      "https://yt3.googleusercontent.com/-CFTJHU7fEWb7BYEb6Jh9gm1EpetvVGQqtof0Rbh-VQRIznYYKJxCaqv_9HeBcmJmIsp2vOO9JU=s900-c-k-c0x00ffffff-no-rj"
+                    }
+                    name="Lilly"
+                    status="away"
+                    style={conversationAvatarStyle}
+                  />
+                  <Conversation.Content
+                    name="Lilly"
+                    lastSenderName="Lilly"
+                    info="Yes, I can do it for you"
+                    style={conversationContentStyle}
+                  />
+                </Conversation>
+
+                )
+              }else{
+                console.log("lol uwaimo")
+              }
+             })
+
+
+               
               })}
             </ConversationList>
           </Sidebar>

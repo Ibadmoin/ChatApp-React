@@ -41,7 +41,7 @@ function Auth() {
       confirmationResult
         .confirm(otp)
         .then(async (res) => {
-          console.log(res);
+          // console.log(res);
           setUser(res.user);
           setLoading(false);
 
