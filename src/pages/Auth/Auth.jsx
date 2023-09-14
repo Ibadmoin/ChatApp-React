@@ -10,6 +10,7 @@ import { signInWithPhoneNumber, onAuthStateChanged } from "firebase/auth";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { collection, setDoc, doc, getDoc } from "firebase/firestore";
+import defaultUserImage from  "../../assets/images/fallback.png"
 function Auth() {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
@@ -66,8 +67,8 @@ function Auth() {
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           phoneNumber: ph,
-          displayName: "",
-          profilePicture: "",
+          displayName: ph,
+          profilePicture: {defaultUserImage},
           lastSeen: null,
           OnlineStatus: false,
           contacts: [],

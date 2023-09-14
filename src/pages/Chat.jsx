@@ -30,6 +30,7 @@ import {
   where,
   query,
   getDocs,
+  onSnapshot
 } from "firebase/firestore";
 import {
   ref,
@@ -41,6 +42,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
+import defaultUserImage from  "../assets/images/fallback.png"
+
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -89,9 +92,11 @@ function Chat() {
   }, [currentUser.uid]);
 
   // console.log("Userdata=> ", userData);
+  const [selectedUser , setSelectedUser] = useState(null)
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
-  const handleConversationClick = useCallback(() => {
+  const handleConversationClick = useCallback((contactUser) => {
+    setSelectedUser(contactUser)
     if (sidebarVisible) {
       setSidebarVisible(false);
     }
@@ -222,38 +227,48 @@ function Chat() {
   }
 
   const [renderedConverstions, setRenderedConverstions] = useState([]);
+useEffect(() => {
+  const converstionComponents = [];
+  // Create an array of promises for each contact query
+  const contactQueries = contacts.map((contact) =>
+    query(collection(db, "users"), where("phoneNumber", "==", contact))
+  );
 
-  useEffect(()=>{
-    const converstionComponents = [];
-    Promise.all(
-      contacts.map(async(contact,index)=>{
-        const contactUser = await fetchContactsData(contact);
-        if(contactUser){
-          converstionComponents.push( 
-          <Conversation key={index} onClick={handleConversationClick} >
-            <Avatar
-              src={
-                contactUser.profilePicture
-              }
-              name="Lilly"
-              status="away"
-              style={conversationAvatarStyle}
-            />
-            <Conversation.Content
-              name={contactUser.displayName}
-              lastSenderName="Lilly"
-              info="Yes, I can do it for you"
-              style={conversationContentStyle}
-            />
-          </Conversation>
+  // Execute all queries in parallel and wait for all to complete
+  Promise.all(contactQueries.map((q) => getDocs(q)))
+    .then((querySnapshotsArray) => {
+      // Flatten the results from all query snapshots
+      const querySnapshots = querySnapshotsArray.flat();
 
+      querySnapshots.forEach((querySnapshot) => {
+        const contactUser = querySnapshot.docs[0]?.data();
+        if (contactUser) {
+          converstionComponents.push(
+            <Conversation key={querySnapshot} onClick={handleConversationClick(contactUser)}>
+              <Avatar
+                src={contactUser.profilePicture}
+                name="Lilly"
+                status={contactUser.OnlineStatus ? "available" : "away"}
+                style={conversationAvatarStyle}
+              />
+              <Conversation.Content
+                name={contactUser.displayName}
+                lastSenderName="Lilly"
+                info="Yes, I can do it for you"
+                style={conversationContentStyle}
+              />
+            </Conversation>
           );
         }
-      })
-    ).then(()=>{
+      });
+
       setRenderedConverstions(converstionComponents);
     })
-  },[contacts]);
+    .catch((error) => {
+      console.error("Error fetching contact data:", error);
+    });
+}, [renderedConverstions]);
+
 
   return (
     <>
@@ -281,12 +296,13 @@ function Chat() {
               <ConversationHeader.Back onClick={handleBackClick} />
               <Avatar
                 src={
-                  "https://static.vecteezy.com/system/resources/previews/011/484/063/original/boy-anime-avatar-free-vector.jpg"
+                  selectedUser?.profilePicture ? selectedUser?.profilePicture : defaultUserImage 
                 }
                 name="Zoe"
               />
               <ConversationHeader.Content
-                userName="Zoe"
+                userName={selectedUser?.displayName}
+                // here.........
                 info="Active 10 mins ago"
               />
               <ConversationHeader.Actions>
