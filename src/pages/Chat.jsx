@@ -30,7 +30,8 @@ import {
   where,
   query,
   getDocs,
-  onSnapshot
+  onSnapshot,
+  serverTimestamp,
 } from "firebase/firestore";
 import {
   ref,
@@ -69,29 +70,75 @@ function Chat() {
   // ------------
 
   // updating on data changes
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const userId = currentUser.uid;
-      const userDocRef = doc(db, "users", `${userId}`);
-      const docSnap = await getDoc(userDocRef);
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const userId = currentUser.uid;
+  //     const userDocRef = doc(db, "users", `${userId}`);
+  //     const docSnap = await getDoc(userDocRef);
 
-      if (docSnap.exists()) {
-        const userDoc = docSnap.data();
+  //     if (docSnap.exists()) {
+  //       const userDoc = docSnap.data();
+  //       setUserData(userDoc);
+  //       setUserName(userDoc.displayName);
+  //       setUserImage(userDoc.profilePicture);
+  //       if (userDoc.contacts) {
+  //         setContacts(userDoc.contacts);
+  //       }
+
+  //     } else {
+  //       console.log("No such user document found!");
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, [currentUser.uid]);
+  useEffect(()=>{
+    const unsub = onSnapshot(userDocRef,(docSnapshot)=>{
+      if(docSnapshot.exists()){
+        const userDoc = docSnapshot.data();
         setUserData(userDoc);
         setUserName(userDoc.displayName);
         setUserImage(userDoc.profilePicture);
         if (userDoc.contacts) {
           setContacts(userDoc.contacts);
         }
-      } else {
-        console.log("No such user document found!");
+      }else{
+        console.log("Fetching user data...")
       }
-    };
+    });
 
-    fetchUserData();
-  }, [currentUser.uid]);
+    return ()=> unsub();
 
-  // console.log("Userdata=> ", userData);
+  },[])
+  // set user online condition here....
+
+  async function updateOnlineStatus(userIsOnline){
+    if(userIsOnline){
+      await updateDoc(userDocRef,{
+        OnlineStatus : true,
+        lastSeen : null
+      });
+    }else{
+      await updateDoc (userDocRef,{
+        OnlineStatus : false,
+        lastSeen: serverTimestamp()
+
+      })
+    }
+  
+  }
+
+  // make sure to add proper dependencies to avoid errors....
+
+ useEffect(()=>{
+  updateOnlineStatus(false)
+
+ },[])
+//  online time conversion
+// Function to convert a timestamp to a "time ago" format
+
+
+
   const [selectedUser , setSelectedUser] = useState(null)
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
@@ -263,6 +310,9 @@ useEffect(() => {
       });
 
       setRenderedConverstions(converstionComponents);
+      // updating the user online activity here....
+
+      
     })
     .catch((error) => {
       console.error("Error fetching contact data:", error);
@@ -303,7 +353,7 @@ useEffect(() => {
               <ConversationHeader.Content
                 userName={selectedUser?.displayName}
                 // here.........
-                info="Active 10 mins ago"
+                info={selectedUser?.OnlineStatus ? "Active Now" : "Active 10 mins ago"}
               />
               <ConversationHeader.Actions>
                 <ChatOptions closeChat={() => setSidebarVisible(true)} />
