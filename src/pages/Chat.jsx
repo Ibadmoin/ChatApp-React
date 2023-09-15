@@ -130,10 +130,10 @@ function Chat() {
 
   // make sure to add proper dependencies to avoid errors....
 
- useEffect(()=>{
-  updateOnlineStatus(false)
+//  useEffect(()=>{
+//   updateOnlineStatus(false)
 
- },[])
+//  },[])
 //  online time conversion
 // Function to convert a timestamp to a "time ago" format
 
@@ -274,52 +274,80 @@ function Chat() {
   }
 
   const [renderedConverstions, setRenderedConverstions] = useState([]);
-useEffect(() => {
-  const converstionComponents = [];
-  // Create an array of promises for each contact query
-  const contactQueries = contacts.map((contact) =>
-    query(collection(db, "users"), where("phoneNumber", "==", contact))
-  );
-
-  // Execute all queries in parallel and wait for all to complete
-  Promise.all(contactQueries.map((q) => getDocs(q)))
-    .then((querySnapshotsArray) => {
-      // Flatten the results from all query snapshots
-      const querySnapshots = querySnapshotsArray.flat();
-
-      querySnapshots.forEach((querySnapshot) => {
-        const contactUser = querySnapshot.docs[0]?.data();
-        if (contactUser) {
-          converstionComponents.push(
-            <Conversation key={querySnapshot} onClick={handleConversationClick(contactUser)}>
-              <Avatar
-                src={contactUser.profilePicture}
-                name="Lilly"
-                status={contactUser.OnlineStatus ? "available" : "away"}
-                style={conversationAvatarStyle}
-              />
-              <Conversation.Content
-                name={contactUser.displayName}
-                lastSenderName="Lilly"
-                info="Yes, I can do it for you"
-                style={conversationContentStyle}
-              />
-            </Conversation>
-          );
-        }
+  useEffect(() => {
+    const unSubFunction = [];
+    const converstionComponents = [];
+    const contactQueries = contacts.map((contact) =>
+      query(collection(db, "users"), where("phoneNumber", "==", contact))
+    );
+  
+    // Set up real-time listeners for each query
+    contactQueries.forEach((q) => {
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const contactUser = doc.data();
+          if (contactUser) {
+            const uniqueKey = doc.id;
+            const existingIndex = converstionComponents.findIndex(
+              (component) => component.key === uniqueKey
+            );
+  
+            if (existingIndex !== -1) {
+              // Update the existing component in the array.
+              converstionComponents[existingIndex] = (
+                <Conversation key={uniqueKey} onClick={handleConversationClick(contactUser)}>
+                  <Avatar
+                    src={contactUser.profilePicture}
+                    name="Lilly"
+                    status={contactUser.OnlineStatus ? "available" : "away"}
+                    style={conversationAvatarStyle}
+                  />
+                  <Conversation.Content
+                    name={contactUser.displayName}
+                    lastSenderName="Lilly"
+                    info="Yes, I can do it for you"
+                    style={conversationContentStyle}
+                  />
+                </Conversation>
+              );
+            } else {
+              // Add a new component to the array.
+              converstionComponents.push(
+                <Conversation key={uniqueKey} onClick={handleConversationClick(contactUser)}>
+                  <Avatar
+                    src={contactUser.profilePicture}
+                    name="Lilly"
+                    status={contactUser.OnlineStatus ? "available" : "away"}
+                    style={conversationAvatarStyle}
+                  />
+                  <Conversation.Content
+                    name={contactUser.displayName}
+                    lastSenderName="Lilly"
+                    info="Yes, I can do it for you"
+                    style={conversationContentStyle}
+                  />
+                </Conversation>
+              );
+            }
+          }
+        });
+  
+        // Update the state with the latest conversation components.
+        setRenderedConverstions([...converstionComponents]);
       });
-
-      setRenderedConverstions(converstionComponents);
-      // updating the user online activity here....
-
-      
-    })
-    .catch((error) => {
-      console.error("Error fetching contact data:", error);
+      unSubFunction.push(unsubscribe);
     });
-}, [renderedConverstions]);
+  
+    // Cleanup the listeners when the component unmounts
+    return () => {
+      unSubFunction.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [contacts, db]);
+  
 
+  
 
+// console.log("dasdas")
   return (
     <>
       <div
