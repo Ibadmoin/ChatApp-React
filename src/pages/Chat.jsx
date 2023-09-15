@@ -48,7 +48,7 @@ import defaultUserImage from  "../assets/images/fallback.png"
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
-  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   const [searchBoxStyle, setsearchBoxStyle] = useState({});
   const [sidebarStyle, setSidebarStyle] = useState({});
   const [chatContainerStyle, setChatContainerStyle] = useState({});
@@ -68,30 +68,7 @@ function Chat() {
   // User document Reference
   const userDocRef = doc(db, "users", `${currentUser.uid}`);
   // ------------
-
-  // updating on data changes
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     const userId = currentUser.uid;
-  //     const userDocRef = doc(db, "users", `${userId}`);
-  //     const docSnap = await getDoc(userDocRef);
-
-  //     if (docSnap.exists()) {
-  //       const userDoc = docSnap.data();
-  //       setUserData(userDoc);
-  //       setUserName(userDoc.displayName);
-  //       setUserImage(userDoc.profilePicture);
-  //       if (userDoc.contacts) {
-  //         setContacts(userDoc.contacts);
-  //       }
-
-  //     } else {
-  //       console.log("No such user document found!");
-  //     }
-  //   };
-
-  //   fetchUserData();
-  // }, [currentUser.uid]);
+// getting realtime user data here....
   useEffect(()=>{
     const unsub = onSnapshot(userDocRef,(docSnapshot)=>{
       if(docSnapshot.exists()){
@@ -127,6 +104,7 @@ function Chat() {
     }
   
   }
+  console.log("object")
 
   // make sure to add proper dependencies to avoid errors....
 
@@ -143,11 +121,14 @@ function Chat() {
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
   const handleConversationClick = useCallback((contactUser) => {
+    // console.log(contactUser);
     setSelectedUser(contactUser)
+    
+
     if (sidebarVisible) {
       setSidebarVisible(false);
     }
-  }, [sidebarVisible, setSidebarVisible]);
+  }, [sidebarVisible, setSidebarVisible,]);
   useEffect(() => {
     if (sidebarVisible) {
       setSidebarStyle({
@@ -295,7 +276,7 @@ function Chat() {
             if (existingIndex !== -1) {
               // Update the existing component in the array.
               converstionComponents[existingIndex] = (
-                <Conversation key={uniqueKey} onClick={handleConversationClick(contactUser)}>
+                <Conversation key={uniqueKey} onClick={()=>handleConversationClick(contactUser)}>
                   <Avatar
                     src={contactUser.profilePicture}
                     name="Lilly"
@@ -313,7 +294,7 @@ function Chat() {
             } else {
               // Add a new component to the array.
               converstionComponents.push(
-                <Conversation key={uniqueKey} onClick={handleConversationClick(contactUser)}>
+                <Conversation key={uniqueKey} onClick={()=>handleConversationClick(contactUser)}>
                   <Avatar
                     src={contactUser.profilePicture}
                     name="Lilly"
