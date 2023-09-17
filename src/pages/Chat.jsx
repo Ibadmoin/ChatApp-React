@@ -32,6 +32,7 @@ import {
   getDocs,
   onSnapshot,
   serverTimestamp,
+  addDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -43,8 +44,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
-import defaultUserImage from  "../assets/images/fallback.png"
-import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
+import defaultUserImage from "../assets/images/fallback.png";
+import { differenceInMinutes, formatDistanceToNow } from "date-fns";
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -62,6 +63,7 @@ function Chat() {
   const [userData, setUserData] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [lastSeen, setLastSeen] = useState(null);
+  const [selectedChatId, setSelectedChatId] = useState("");
 
   const AuthCurrentUser = useContext(AuthContext);
   const currentUser = AuthCurrentUser.currentUser;
@@ -69,88 +71,85 @@ function Chat() {
   // User document Reference
   const userDocRef = doc(db, "users", `${currentUser.uid}`);
   // ------------
-// getting realtime user data here....
-//--------------------------
-useEffect(() => {
-  const unsub = onSnapshot(userDocRef, (docSnapshot) => {
-    if (docSnapshot.exists()) {
-      const userDoc = docSnapshot.data();
-      setUserData(userDoc);
-      setUserName(userDoc.displayName);
-      setUserImage(userDoc.profilePicture);
-  
-      if (userDoc.contacts) {
-        setContacts(userDoc.contacts);
+  // getting realtime user data here....
+  //--------------------------
+  useEffect(() => {
+    const unsub = onSnapshot(userDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userDoc = docSnapshot.data();
+        setUserData(userDoc);
+        setUserName(userDoc.displayName);
+        setUserImage(userDoc.profilePicture);
+
+        if (userDoc.contacts) {
+          setContacts(userDoc.contacts);
+        }
+      } else {
+        console.log("Fetching user data...");
       }
-    } else {
-      console.log("Fetching user data...")
-    }
-  });
+    });
 
-  return () => unsub();
-}, []);
-
-
+    return () => unsub();
+  }, []);
 
   // set user online condition here....
   const targetUserRef = doc(db, "users", `9J09bEDJ3APAQZXariBpCJe608f1`);
-  async function updateOnlineStatus(userIsOnline){
-    if(userIsOnline){
-      await updateDoc(targetUserRef,{
-        OnlineStatus : true,
-        lastSeen : null
+  async function updateOnlineStatus(userIsOnline) {
+    if (userIsOnline) {
+      await updateDoc(targetUserRef, {
+        OnlineStatus: true,
+        lastSeen: null,
       });
-    }else{
-      await updateDoc (targetUserRef,{
-        OnlineStatus : false,
-        lastSeen: serverTimestamp()
-
-      })
+    } else {
+      await updateDoc(targetUserRef, {
+        OnlineStatus: false,
+        lastSeen: serverTimestamp(),
+      });
     }
-  
   }
-
-
-  
 
   // make sure to add proper dependencies to avoid errors....
 
-//  useEffect(()=>{
-//   updateOnlineStatus(false)
+  //  useEffect(()=>{
+  //   updateOnlineStatus(false)
 
-//  },[])
-//  online time conversion
-// Function to convert a timestamp to a "time ago" format;
+  //  },[])
+  //  online time conversion
+  // Function to convert a timestamp to a "time ago" format;
 
+  function calculateTimeAgo(timestamp) {
+    const currentTimeStamp = new Date();
+    const lastSeenTimestamp = new Date(timestamp.seconds * 1000);
 
-function calculateTimeAgo(timestamp){
-  const currentTimeStamp = new Date();
-  const lastSeenTimestamp = new Date(timestamp.seconds * 1000);
-  
-  const minutesAgo = differenceInMinutes(currentTimeStamp, lastSeenTimestamp);
-  if(minutesAgo< 1){
-    return "just now";
-  }else{
-    return formatDistanceToNow(lastSeenTimestamp);
+    const minutesAgo = differenceInMinutes(currentTimeStamp, lastSeenTimestamp);
+    if (minutesAgo < 1) {
+      return "just now";
+    } else {
+      return formatDistanceToNow(lastSeenTimestamp);
+    }
   }
-}
 
+  // to update chat id when a user is selected...
+  useEffect(() => {
+    getAllMessages(selectedChatId);
+  }, [selectedChatId]);
 
-
-
-
-  const [selectedUser , setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null);
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
-  const handleConversationClick = useCallback((contactUser) => {
-    // console.log(contactUser);
-    setSelectedUser(contactUser)
-    
+  const handleConversationClick = useCallback(
+    (contactUser) => {
+      // console.log(contactUser);
+      setSelectedUser(contactUser);
+      const chatId = genrateChatId(currentUser.uid, contactUser.uid);
+      setSelectedChatId(chatId);
 
-    if (sidebarVisible) {
-      setSidebarVisible(false);
-    }
-  }, [sidebarVisible, setSidebarVisible,]);
+      if (sidebarVisible) {
+        setSidebarVisible(false);
+      }
+    },
+    [sidebarVisible, setSidebarVisible]
+  );
   useEffect(() => {
     if (sidebarVisible) {
       setSidebarStyle({
@@ -263,17 +262,19 @@ function calculateTimeAgo(timestamp){
 
   // // getting user data from contact list here
   async function fetchContactsData(contactNumber) {
-    const q = query(collection(db, "users"), where("phoneNumber", "==", contactNumber));
+    const q = query(
+      collection(db, "users"),
+      where("phoneNumber", "==", contactNumber)
+    );
     const querySnapshot = await getDocs(q);
-    if(!querySnapshot.empty){
+    if (!querySnapshot.empty) {
       console.log("user found");
       const userData = querySnapshot.docs[0].data();
       return userData;
-    }else{
-      console.log('no user');
+    } else {
+      console.log("no user");
       return null;
     }
-
   }
 
   const [renderedConverstions, setRenderedConverstions] = useState([]);
@@ -283,7 +284,7 @@ function calculateTimeAgo(timestamp){
     const contactQueries = contacts.map((contact) =>
       query(collection(db, "users"), where("phoneNumber", "==", contact))
     );
-  
+
     // Set up real-time listeners for each query
     contactQueries.forEach((q) => {
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -294,11 +295,14 @@ function calculateTimeAgo(timestamp){
             const existingIndex = converstionComponents.findIndex(
               (component) => component.key === uniqueKey
             );
-  
+
             if (existingIndex !== -1) {
               // Update the existing component in the array.
               converstionComponents[existingIndex] = (
-                <Conversation key={uniqueKey} onClick={()=>handleConversationClick(contactUser)}>
+                <Conversation
+                  key={uniqueKey}
+                  onClick={() => handleConversationClick(contactUser)}
+                >
                   <Avatar
                     src={contactUser.profilePicture}
                     name="Lilly"
@@ -316,7 +320,10 @@ function calculateTimeAgo(timestamp){
             } else {
               // Add a new component to the array.
               converstionComponents.push(
-                <Conversation key={uniqueKey} onClick={()=>handleConversationClick(contactUser)}>
+                <Conversation
+                  key={uniqueKey}
+                  onClick={() => handleConversationClick(contactUser)}
+                >
                   <Avatar
                     src={contactUser.profilePicture}
                     name="Lilly"
@@ -334,23 +341,74 @@ function calculateTimeAgo(timestamp){
             }
           }
         });
-  
+
         // Update the state with the latest conversation components.
         setRenderedConverstions([...converstionComponents]);
       });
       unSubFunction.push(unsubscribe);
     });
-  
+
     // Cleanup the listeners when the component unmounts
     return () => {
       unSubFunction.forEach((unsubscribe) => unsubscribe());
     };
   }, [contacts, db]);
-  
 
   // chat functions
+  // =======================
+  const genrateChatId = (senderUId, recieverUId) => {
+    const sortedUid = [senderUId, recieverUId].sort();
+    return `${sortedUid[0]}_${sortedUid[1]}`;
+  };
 
-// console.log("dasdas")
+  // getting messages here...
+const [renderMessages, setRenderMessages] = useState([]);
+  const getAllMessages = (chatId) => {
+    const q = query(collection(db, "messages"), where("chatId", "==", chatId));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const messages = [];
+      querySnapshot.forEach((doc) => {
+        messages.push(doc.data());
+      });
+      const messageComponents = messages.map((message,index) => {
+        if (currentUser.uid === message.sender.userId) {
+          // If the current user sent the message, render as outgoing
+          return (
+            <Message
+              key={index}
+              model={{
+                message: message.content,
+                sentTime: "15 mins ago", // Replace with the actual sent time
+                sender: userName, // Use the current user's name
+                direction: "outgoing",
+                position: "single",
+              }}
+            />
+          );
+        } else {
+          // If another user sent the message, render as incoming
+          return (
+            <Message
+              key={index}
+              model={{
+                message: message.content,
+                sentTime: "15 mins ago", // Replace with the actual sent time
+                sender: selectedUser?.displayName, // Use the sender's name
+                direction: "incoming",
+                position: "single",
+              }}
+            />
+          );
+        }
+      });
+      setRenderMessages(messageComponents);
+  
+      console.log("messages==>", messages);
+    });
+  };
+  // =======================
+
+  // console.log("dasdas")
   return (
     <>
       <div
@@ -368,23 +426,29 @@ function calculateTimeAgo(timestamp){
               updateUserImage={updateUserImage}
             />
             <Search placeholder="Search User..." style={searchBoxStyle} />
-            <ConversationList >
-              {renderedConverstions }
-            </ConversationList>
+            <ConversationList>{renderedConverstions}</ConversationList>
           </Sidebar>
           <ChatContainer style={chatContainerStyle}>
             <ConversationHeader>
               <ConversationHeader.Back onClick={handleBackClick} />
               <Avatar
                 src={
-                  selectedUser?.profilePicture ? selectedUser?.profilePicture : defaultUserImage 
+                  selectedUser?.profilePicture
+                    ? selectedUser?.profilePicture
+                    : defaultUserImage
                 }
                 name="Zoe"
               />
               <ConversationHeader.Content
                 userName={selectedUser?.displayName}
                 // here.........
-                info={selectedUser?.OnlineStatus ? "Active Now" : selectedUser?.lastSeen ? `${calculateTimeAgo(selectedUser.lastSeen)} ago` : ""}
+                info={
+                  selectedUser?.OnlineStatus
+                    ? "Active Now"
+                    : selectedUser?.lastSeen
+                    ? `${calculateTimeAgo(selectedUser.lastSeen)} ago`
+                    : ""
+                }
               />
               <ConversationHeader.Actions>
                 <ChatOptions closeChat={() => setSidebarVisible(true)} />
@@ -392,25 +456,38 @@ function calculateTimeAgo(timestamp){
             </ConversationHeader>
             <MessageList>
               <MessageSeparator content="thursday, 15 July 2023" />
-              <Message
-                model={{
-                  message: "Hello my friend",
-                  sentTime: "15 mins ago",
-                  sender: "Zoe",
-                  direction: "incoming",
-                  position: "single",
-                }}
-              />
+              {renderMessages}
             </MessageList>
             <MessageInput
               value={messageInputValue}
               onChange={(innerHtml, textContent, innerText, nodes) => {
                 setMessageInputValue(innerText);
               }}
-              onSend={(innerHtml, textContent, innerText, nodes) => {
+              onSend={async (innerHtml, textContent, innerText, nodes) => {
                 if (innerText.trim() !== "") {
                   console.log(messageInputValue);
+                  console.log(selectedChatId);
+                  const messagecontent = messageInputValue;
                   setMessageInputValue("");
+                  const docRef = await addDoc(collection(db, "messages"), {
+                    chatId: `${selectedChatId}`,
+                    content: messagecontent,
+                    sender: {
+                      userId: currentUser.uid,
+                    },
+                    timestamp: serverTimestamp(),
+                    status: "sent",
+                    recipients: [
+                      {
+                        userId: currentUser.uid,
+                      },
+                      {
+                        userId: selectedUser.uid,
+                      },
+                    ],
+                    edited: false,
+                    deleted: false,
+                  });
                 }
               }}
               placeholder="Type message here"
