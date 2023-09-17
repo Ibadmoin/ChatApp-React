@@ -44,7 +44,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
 import defaultUserImage from  "../assets/images/fallback.png"
-
+import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -61,6 +61,7 @@ function Chat() {
   const [userName, setUserName] = useState("chat user");
   const [userData, setUserData] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [lastSeen, setLastSeen] = useState(null);
 
   const AuthCurrentUser = useContext(AuthContext);
   const currentUser = AuthCurrentUser.currentUser;
@@ -69,34 +70,38 @@ function Chat() {
   const userDocRef = doc(db, "users", `${currentUser.uid}`);
   // ------------
 // getting realtime user data here....
-  useEffect(()=>{
-    const unsub = onSnapshot(userDocRef,(docSnapshot)=>{
-      if(docSnapshot.exists()){
-        const userDoc = docSnapshot.data();
-        setUserData(userDoc);
-        setUserName(userDoc.displayName);
-        setUserImage(userDoc.profilePicture);
-        if (userDoc.contacts) {
-          setContacts(userDoc.contacts);
-        }
-      }else{
-        console.log("Fetching user data...")
+//--------------------------
+useEffect(() => {
+  const unsub = onSnapshot(userDocRef, (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const userDoc = docSnapshot.data();
+      setUserData(userDoc);
+      setUserName(userDoc.displayName);
+      setUserImage(userDoc.profilePicture);
+  
+      if (userDoc.contacts) {
+        setContacts(userDoc.contacts);
       }
-    });
+    } else {
+      console.log("Fetching user data...")
+    }
+  });
 
-    return ()=> unsub();
+  return () => unsub();
+}, []);
 
-  },[])
+
+
   // set user online condition here....
-
+  const targetUserRef = doc(db, "users", `9J09bEDJ3APAQZXariBpCJe608f1`);
   async function updateOnlineStatus(userIsOnline){
     if(userIsOnline){
-      await updateDoc(userDocRef,{
+      await updateDoc(targetUserRef,{
         OnlineStatus : true,
         lastSeen : null
       });
     }else{
-      await updateDoc (userDocRef,{
+      await updateDoc (targetUserRef,{
         OnlineStatus : false,
         lastSeen: serverTimestamp()
 
@@ -104,7 +109,9 @@ function Chat() {
     }
   
   }
-  console.log("object")
+
+
+  
 
   // make sure to add proper dependencies to avoid errors....
 
@@ -113,7 +120,22 @@ function Chat() {
 
 //  },[])
 //  online time conversion
-// Function to convert a timestamp to a "time ago" format
+// Function to convert a timestamp to a "time ago" format;
+
+
+function calculateTimeAgo(timestamp){
+  const currentTimeStamp = new Date();
+  const lastSeenTimestamp = new Date(timestamp.seconds * 1000);
+  
+  const minutesAgo = differenceInMinutes(currentTimeStamp, lastSeenTimestamp);
+  if(minutesAgo< 1){
+    return "just now";
+  }else{
+    return formatDistanceToNow(lastSeenTimestamp);
+  }
+}
+
+
 
 
 
@@ -326,7 +348,7 @@ function Chat() {
   }, [contacts, db]);
   
 
-  
+  // chat functions
 
 // console.log("dasdas")
   return (
@@ -362,7 +384,7 @@ function Chat() {
               <ConversationHeader.Content
                 userName={selectedUser?.displayName}
                 // here.........
-                info={selectedUser?.OnlineStatus ? "Active Now" : "Active 10 mins ago"}
+                info={selectedUser?.OnlineStatus ? "Active Now" : selectedUser?.lastSeen ? `${calculateTimeAgo(selectedUser.lastSeen)} ago` : ""}
               />
               <ConversationHeader.Actions>
                 <ChatOptions closeChat={() => setSidebarVisible(true)} />
