@@ -261,21 +261,7 @@ function Chat() {
   };
 
   // // getting user data from contact list here
-  async function fetchContactsData(contactNumber) {
-    const q = query(
-      collection(db, "users"),
-      where("phoneNumber", "==", contactNumber)
-    );
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      console.log("user found");
-      const userData = querySnapshot.docs[0].data();
-      return userData;
-    } else {
-      console.log("no user");
-      return null;
-    }
-  }
+
 
   const [renderedConverstions, setRenderedConverstions] = useState([]);
   useEffect(() => {
@@ -352,7 +338,7 @@ function Chat() {
     return () => {
       unSubFunction.forEach((unsubscribe) => unsubscribe());
     };
-  }, [contacts, db]);
+  }, [contacts, db,setContacts]);
 
   // chat functions
   // =======================
