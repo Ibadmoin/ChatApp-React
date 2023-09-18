@@ -33,6 +33,7 @@ import {
   onSnapshot,
   serverTimestamp,
   addDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import {
   ref,
@@ -73,6 +74,7 @@ function Chat() {
   // ------------
   // getting realtime user data here....
   //--------------------------
+  const [chatList , setChatList]= useState([]);
   useEffect(() => {
     const unsub = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -80,6 +82,9 @@ function Chat() {
         setUserData(userDoc);
         setUserName(userDoc.displayName);
         setUserImage(userDoc.profilePicture);
+        setChatList(userDoc.chats);
+        
+        
 
         if (userDoc.contacts) {
           setContacts(userDoc.contacts);
@@ -90,7 +95,9 @@ function Chat() {
     });
 
     return () => unsub();
-  }, []);
+  }, [db]);
+  // ---------------
+
 
   // set user online condition here....
   const targetUserRef = doc(db, "users", `9J09bEDJ3APAQZXariBpCJe608f1`);
@@ -259,6 +266,47 @@ function Chat() {
         console.log("Error updating name");
       });
   };
+ 
+
+
+  // getting  user data from chat list;
+   const createChat= async(userUid, otherUserUid) => {
+    const chatId = genrateChatId(userUid,otherUserUid);
+    await setDoc(doc(db, "chats",chatId),{
+      participants: [userUid, otherUserUid],
+      messages: [],
+
+    });
+
+    // adding the chatId in both users chatList
+    await updateDoc(doc(db, "users", userUid),{
+      chats :arrayUnion(chatId),
+    });
+    await updateDoc(doc(db,"users",otherUserUid),{
+      chats:arrayUnion(chatId),
+    });
+   };
+
+  //  getting user chat;
+  const getChatsForUser = async(userUid)=>{
+     const userDocSnap = await getDoc(userDocRef);
+     if(userDocSnap.exists()){
+      const userDocData = userDocSnap.data();
+      const chatIds = userDocData.chats || [];
+      // quering chat collection to get chat document,
+      const chats = await Promise.all(chatIds.map(async(chatId)=>{
+        const chatDocRef = doc(db, "chats",chatId);
+        const chatDocSnap = await getDoc(chatDocRef);
+        // console.log("agaya chat")
+        return chatDocSnap.exists()? chatDocSnap.data(): null;
+      }));
+      // filter out null chats documents 
+      const validChats = chats.filter((chat)=>chat!== null);
+      return validChats;
+     }else{
+      return [];
+     }
+  };
 
   // // getting user data from contact list here
 
@@ -271,11 +319,26 @@ function Chat() {
       query(collection(db, "users"), where("phoneNumber", "==", contact))
     );
 
+// here.....................
+    const chatListQueries =  Promise.all(
+      chatList.map(async(chat)=>{
+        //  // checking if the user existed tin chat id;
+    const chatsForUser = await getChatsForUser(currentUser.uid);
+    const ChatExistsForContact = chatsForUser.some((chat)=>{
+      chat.participants.includes(currentUser.uid);
+    });
+    return ChatExistsForContact;
+     
+   }));
+   
+
     // Set up real-time listeners for each query
     contactQueries.forEach((q) => {
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        querySnapshot.forEach((doc) => {
+      const unsubscribe = onSnapshot(q,async (querySnapshot) => {
+        querySnapshot.forEach(async(doc) => {
           const contactUser = doc.data();
+          
+                 
           if (contactUser) {
             const uniqueKey = doc.id;
             const existingIndex = converstionComponents.findIndex(
@@ -331,6 +394,7 @@ function Chat() {
         // Update the state with the latest conversation components.
         setRenderedConverstions([...converstionComponents]);
       });
+
       unSubFunction.push(unsubscribe);
     });
 
@@ -454,6 +518,7 @@ const [renderMessages, setRenderMessages] = useState([]);
                   console.log(messageInputValue);
                   console.log(selectedChatId);
                   const messagecontent = messageInputValue;
+                  createChat(currentUser.uid, selectedUser.uid)
                   setMessageInputValue("");
                   const docRef = await addDoc(collection(db, "messages"), {
                     chatId: `${selectedChatId}`,
