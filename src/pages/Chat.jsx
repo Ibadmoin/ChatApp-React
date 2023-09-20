@@ -82,7 +82,7 @@ function Chat() {
         setUserData(userDoc);
         setUserName(userDoc.displayName);
         setUserImage(userDoc.profilePicture);
-        setChatList(userDoc.chats);
+        setChatList(userDoc.chat);
         
         
 
@@ -336,22 +336,33 @@ function Chat() {
   //     return [];
   //    }
   // };
-
-
+  
+  
   // // getting user data from contact list here
+useEffect(()=>{
+  console.log(chatList)
+  
+},[chatList])
 
-
-  const [renderedConverstions, setRenderedConverstions] = useState([]);
+const [renderedConverstions, setRenderedConverstions] = useState([]);
   useEffect(() => {
     const unSubFunction = [];
     const converstionComponents = [];
     const contactQueries = contacts.map((contact) =>
-      query(collection(db, "users"), where("phoneNumber", "==", contact))
+    query(collection(db, "users"), where("phoneNumber", "==", contact))
     );
+    
+    // here.....................
 
-// here.....................
- 
+    
+      const chatsQueries =  Promise.all(chatList.map(async(chatId)=>{
+        const chatDocRef = doc(db,"chats", chatId);
+        const chatDocSnap = await getDoc(chatDocRef);
+        // console.log(chatDocSnap.data().participants[1]);
+        return chatDocSnap.exists()? chatDocSnap.data() : null;
+      }));
 
+      
 
 
     // Set up real-time listeners for each query
