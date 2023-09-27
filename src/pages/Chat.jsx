@@ -339,12 +339,13 @@ function Chat() {
   
   
   // // getting user data from contact list here
-useEffect(()=>{
-  console.log(chatList)
+// useEffect(()=>{
+//   console.log(chatList)
   
-},[chatList])
+// },[chatList])
 
 const [renderedConverstions, setRenderedConverstions] = useState([]);
+const [incomingReq, setIncomingReq]= useState([]);
   useEffect(() => {
     const unSubFunction = [];
     const converstionComponents = [];
@@ -354,15 +355,13 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     
     // here.....................
 
-    
-      const chatsQueries =  Promise.all(chatList.map(async(chatId)=>{
-        const chatDocRef = doc(db,"chats", chatId);
-        const chatDocSnap = await getDoc(chatDocRef);
-        // console.log(chatDocSnap.data().participants[1]);
-        return chatDocSnap.exists()? chatDocSnap.data() : null;
-      }));
 
-      
+
+    
+  
+  
+
+
 
 
     // Set up real-time listeners for each query
@@ -430,6 +429,30 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
 
       unSubFunction.push(unsubscribe);
     });
+
+    // add a query for each user in the chat list;
+    const chatDocuments =[];
+    chatList.forEach((chatId)=>{
+      const chatDocRef = doc(db,"chats",chatId);
+
+      chatDocuments[chatId] = onSnapshot(chatDocRef,(docSnapshot)=>{
+        if(docSnapshot.exists()){
+          const chatData = docSnapshot.data();
+
+          console.log("Real-time chat data for chatid " ,chatId , ":",chatData);
+
+          const messageSenderId = chatData.participants[0];
+          console.log("zaid's id:",messageSenderId);
+          setIncomingReq(messageSenderId);
+        }
+      })
+    
+    });
+
+    
+
+  
+
 
     // Cleanup the listeners when the component unmounts
     return () => {
