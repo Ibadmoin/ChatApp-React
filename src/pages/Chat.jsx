@@ -301,10 +301,10 @@ function Chat() {
 
        
 
-        // updating chat id to other person chats...
+        // updating incoming user uid to current user document...
 
         await updateDoc(doc(db,"users",otherUserUid),{
-                  chat:arrayUnion(chatId),
+                  newUser:arrayUnion(otherUserUid),
                 });
       
 
@@ -316,43 +316,22 @@ function Chat() {
     
    };
 
-  // //  getting user chat;
-  // const getChatsForUser = async(userUid)=>{
-  //    const userDocSnap = await getDoc(userDocRef);
-  //    if(userDocSnap.exists()){
-  //     const userDocData = userDocSnap.data();
-  //     const chatIds = userDocData.chats || [];
-  //     // quering chat collection to get chat document,
-  //     const chats = await Promise.all(chatIds.map(async(chatId)=>{
-  //       const chatDocRef = doc(db, "chats",chatId);
-  //       const chatDocSnap = await getDoc(chatDocRef);
-  //       // console.log("agaya chat")
-  //       return chatDocSnap.exists()? chatDocSnap.data(): null;
-  //     }));
-  //     // filter out null chats documents 
-  //     const validChats = chats.filter((chat)=>chat!== null);
-  //     return validChats;
-  //    }else{
-  //     return [];
-  //    }
-  // };
-  
-  
-  // // getting user data from contact list here
-// useEffect(()=>{
-//   console.log(chatList)
-  
-// },[chatList])
+
+
+
+
+
+   
 
 const [renderedConverstions, setRenderedConverstions] = useState([]);
-const [incomingReq, setIncomingReq]= useState([]);
   useEffect(() => {
     const unSubFunction = [];
     const converstionComponents = [];
     const contactQueries = contacts.map((contact) =>
     query(collection(db, "users"), where("phoneNumber", "==", contact))
     );
-    
+
+  
     // here.....................
 
 
@@ -430,24 +409,7 @@ const [incomingReq, setIncomingReq]= useState([]);
       unSubFunction.push(unsubscribe);
     });
 
-    // add a query for each user in the chat list;
-    const chatDocuments =[];
-    chatList.forEach((chatId)=>{
-      const chatDocRef = doc(db,"chats",chatId);
-
-      chatDocuments[chatId] = onSnapshot(chatDocRef,(docSnapshot)=>{
-        if(docSnapshot.exists()){
-          const chatData = docSnapshot.data();
-
-          console.log("Real-time chat data for chatid " ,chatId , ":",chatData);
-
-          const messageSenderId = chatData.participants[0];
-          console.log("zaid's id:",messageSenderId);
-          setIncomingReq(messageSenderId);
-        }
-      })
-    
-    });
+ 
 
     
 
