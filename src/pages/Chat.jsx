@@ -34,6 +34,7 @@ import {
   serverTimestamp,
   addDoc,
   arrayUnion,
+  orderBy,
 } from "firebase/firestore";
 import {
   ref,
@@ -507,7 +508,7 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
   // getting messages here...
 const [renderMessages, setRenderMessages] = useState([]);
   const getAllMessages = (chatId) => {
-    const q = query(collection(db, "messages"), where("chatId", "==", chatId));
+    const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("timestamp","asc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const messages = [];
       querySnapshot.forEach((doc) => {
