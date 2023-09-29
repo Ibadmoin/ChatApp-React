@@ -74,7 +74,7 @@ function Chat() {
   // ------------
   // getting realtime user data here....
   //--------------------------
-  const [chatList , setChatList]= useState([]);
+  const [inconmingUsers,setIncomingUsers]= useState([]);
   useEffect(() => {
     const unsub = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -82,7 +82,7 @@ function Chat() {
         setUserData(userDoc);
         setUserName(userDoc.displayName);
         setUserImage(userDoc.profilePicture);
-        setChatList(userDoc.chat);
+        setIncomingUsers(userDoc.chat);
         
         
 
@@ -304,8 +304,12 @@ function Chat() {
         // updating incoming user uid to current user document...
 
         await updateDoc(doc(db,"users",otherUserUid),{
-                  newUser:arrayUnion(otherUserUid),
+                  chat:arrayUnion(otherUserUid),
                 });
+
+               
+
+
       
 
      }else{
@@ -321,6 +325,7 @@ function Chat() {
 
 
 
+
    
 
 const [renderedConverstions, setRenderedConverstions] = useState([]);
@@ -329,14 +334,32 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     const converstionComponents = [];
     const contactQueries = contacts.map((contact) =>
     query(collection(db, "users"), where("phoneNumber", "==", contact))
+  );
+    // adding query for new users in chat list
+    const newUserQuery = inconmingUsers.map((newUser)=>
+      query(collection(db, "users"), where("uid", "==",newUser ))
     );
+    
+
+
 
   
     // here.....................
 
 
 
-    
+    // setting up real time listeners for each query
+
+  newUserQuery.forEach((q)=>{
+      const unsubscribe = onSnapshot(q,(querySnapshot)=>{
+        querySnapshot.forEach(async(doc)=>{
+          const newUser =doc.data();
+          if(newUser){
+         
+          }
+        })
+      })
+    })
   
   
 
