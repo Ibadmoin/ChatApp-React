@@ -355,8 +355,60 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
         querySnapshot.forEach(async(doc)=>{
           const newUser =doc.data();
           if(newUser){
-         
-          }
+         const uniqueKey = doc.id;
+         const existingIndex = converstionComponents.findIndex(
+           (component) => component.key === uniqueKey
+        );
+
+        if (existingIndex !== -1) {
+          // Update the existing component in the array.
+          converstionComponents[existingIndex] = (
+            <Conversation
+              key={uniqueKey}
+              onClick={() => handleConversationClick(newUser)}
+            >
+              <Avatar
+                src={newUser.profilePicture}
+                name="Lilly"
+                status={newUser.OnlineStatus ? "available" : "away"}
+                style={conversationAvatarStyle}
+              />
+              <Conversation.Content
+                name={newUser.displayName}
+                lastSenderName="Lilly"
+                info="Yes, I can do it for you"
+                style={conversationContentStyle}
+              />
+            </Conversation>
+          );
+        } else {
+          // Add a new component to the array.
+          converstionComponents.push(
+            <Conversation
+              key={uniqueKey}
+              onClick={() => handleConversationClick(newUser)}
+            >
+              <Avatar
+                src={newUser.profilePicture}
+                name="Lilly"
+                status={newUser.OnlineStatus ? "available" : "away"}
+                style={conversationAvatarStyle}
+              />
+              <Conversation.Content
+                name={newUser.displayName}
+                lastSenderName="Lilly"
+                info="Yes, I can do it for you"
+                style={conversationContentStyle}
+              />
+            </Conversation>
+          );
+        }
+
+      };
+
+
+
+
         })
       })
     })
