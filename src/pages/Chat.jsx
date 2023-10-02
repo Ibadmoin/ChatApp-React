@@ -19,7 +19,7 @@ import {
   MessageSeparator,
 } from "@chatscope/chat-ui-kit-react";
 
-import { UserDetail } from "../components/Comp";
+import { NewUserAlert, UserDetail } from "../components/Comp";
 import { auth, db, storage } from "../Firebase.config";
 import {
   collection,
@@ -156,8 +156,9 @@ function Chat() {
       setSelectedUser(contactUser);
       const chatId = genrateChatId(currentUser.uid, contactUser.uid);
       setSelectedChatId(chatId);
+      // console.log(contacts.includes(contactUser.phoneNumber))
 
-      setExistingUser(contacts.includes(contactUser.phoneNumber)) 
+      setExistingUser(contacts.includes(contactUser.phoneNumber)); 
    
 
 
@@ -203,7 +204,6 @@ function Chat() {
     setChatContainerStyle,
   ]);
   // upaloding image url function
-console.log(existingUser)
   const uploadFile = (file, uid) => {
     return new Promise((resolve, reject) => {
       const mountainsRef = ref(storage, `ProfilePictures/${uid}`);
@@ -277,6 +277,16 @@ console.log(existingUser)
         console.log("Error updating name");
       });
   };
+  // add to contact list
+const handleAddNewUser = ()=>{
+  console.log("added");
+  setExistingUser(true)
+}
+
+  // block user 
+  const handleBlockUser = ()=>{
+    console.log('block')
+  }
  
 
 
@@ -614,7 +624,7 @@ const [renderMessages, setRenderMessages] = useState([]);
               <MessageList.Content>
               {renderMessages}
               {/* added new component here... */}
-               {!existingUser ? <div>newuser</div> : <></> }
+             {existingUser ? (<></>): <NewUserAlert onAddToContactClick={handleAddNewUser} onBlockClick={handleBlockUser} />}
               </MessageList.Content>
 
             </MessageList>

@@ -1,0 +1,47 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+.MessageWrapper{
+    background: #C6E3FA;
+    border-radius: 5px;
+    width: 95%;
+    height: fit-content;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    bottom: 0px;
+    left: 50%;
+}
+.MessageWrapper p {
+    text-align: center;
+    padding: 10px 20px;
+    
+}
+.BtnWrapper{
+    width: 90%;
+    height: 50px;
+    /* background: #000; */
+    margin: 10px auto;
+    display: flex;
+    justify-content: space-evenly;
+}
+.BtnWrapper button {
+    width: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    font-weight: bold;
+
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.blockBtn{
+    color: red;
+}
+.addBtn{
+    color: green;
+}
