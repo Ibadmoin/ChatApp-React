@@ -147,7 +147,7 @@ function Auth() {
           <div className="Wrapper">
             <h1 className="Heading">
               Welcome to <br />
-              CODE A PROGRAM
+              Chatters
             </h1>
             {showOTP ? (
               <>
@@ -208,7 +208,7 @@ function Auth() {
                   )}
                   <span>Send code via SMS</span>
                 </button>
-                <button onClick={handleSubmit}>Otp screen</button>
+               
                 <div id="recaptcha-container"></div>
               </>
             )}

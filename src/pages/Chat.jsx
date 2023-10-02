@@ -151,6 +151,9 @@ function Chat() {
       setSelectedUser(contactUser);
       const chatId = genrateChatId(currentUser.uid, contactUser.uid);
       setSelectedChatId(chatId);
+     if(!contacts.includes(contactUser.phoneNumber)){
+      console.log("new user with ph=>",contactUser.phoneNumber)
+     }
 
       if (sidebarVisible) {
         setSidebarVisible(false);
