@@ -35,6 +35,7 @@ import {
   addDoc,
   arrayUnion,
   orderBy,
+  limit,
 } from "firebase/firestore";
 import {
   ref,
@@ -341,7 +342,44 @@ const handleAddNewUser = ()=>{
     
    };
 
+ // getting last msg from chats 
+ const [lastMessage ,setLastMessage] = useState(null);
+ const getlastMsgFromChats = async (chatId) => {
+  const q = query(
+    collection(db, "messages"),
+    where("chatId", "==", chatId),
+    orderBy("timestamp", "desc"),
+    limit(1)
+  );
 
+  return new Promise((resolve) => {
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const messageData = doc.data();
+
+        resolve({
+          message: messageData.content,
+          sender: messageData.sender,
+          time: messageData.timestamp,
+        });
+      });
+
+      // Unsubscribe from further updates (you got the last message)
+      unsubscribe();
+    });
+  });
+};
+
+// useEffect(() => {
+//   const fetchData = async () => {
+//     const zaidLastMsg = await getlastMsgFromChats(
+//       "CwGCHVbJxpSE87hTwL6JLBBk81k1_pdPaKtzftOaVUHvZfQxbtyN5EHI2"
+//     );
+//     console.log(zaidLastMsg);
+//   };
+
+//   fetchData(); // Call the async function
+// }, [db, createChat]);
 
 
 
@@ -360,22 +398,26 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     const newUserQuery = inconmingUsers.map((newUser)=>
       query(collection(db, "users"), where("uid", "==",newUser ))
     );
+
+    
+    
     
 
-
-
-  
+    
     // here.....................
-
-
-
+    
+    
+    
     // setting up real time listeners for each query
-
-  newUserQuery.forEach((q)=>{
+    
+    newUserQuery.forEach((q)=>{
       const unsubscribe = onSnapshot(q,(querySnapshot)=>{
         querySnapshot.forEach(async(doc)=>{
           const newUser =doc.data();
+       
+         
           if(newUser){
+   
          const uniqueKey = doc.id;
          const existingIndex = converstionComponents.findIndex(
            (component) => component.key === uniqueKey
@@ -447,6 +489,7 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
           
                  
           if (contactUser) {
+          
             const uniqueKey = doc.id;
             const existingIndex = converstionComponents.findIndex(
               (component) => component.key === uniqueKey
@@ -525,6 +568,7 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     return `${sortedUid[0]}_${sortedUid[1]}`;
   };
 
+ 
   // getting messages here...
 const [renderMessages, setRenderMessages] = useState([]);
   const getAllMessages = (chatId) => {
