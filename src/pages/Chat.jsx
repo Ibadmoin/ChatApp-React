@@ -135,9 +135,14 @@ function Chat() {
     } else {
       return formatDistanceToNow(lastSeenTimestamp);
     }
-  }
+  };
+
+
+
 
   // to update chat id when a user is selected...
+  const [existingUser , setExistingUser] = useState(false);
+
   useEffect(() => {
     getAllMessages(selectedChatId);
   }, [selectedChatId]);
@@ -151,9 +156,11 @@ function Chat() {
       setSelectedUser(contactUser);
       const chatId = genrateChatId(currentUser.uid, contactUser.uid);
       setSelectedChatId(chatId);
-     if(!contacts.includes(contactUser.phoneNumber)){
-      console.log("new user with ph=>",contactUser.phoneNumber)
-     }
+
+      setExistingUser(contacts.includes(contactUser.phoneNumber)) 
+   
+
+
 
       if (sidebarVisible) {
         setSidebarVisible(false);
@@ -196,7 +203,7 @@ function Chat() {
     setChatContainerStyle,
   ]);
   // upaloding image url function
-
+console.log(existingUser)
   const uploadFile = (file, uid) => {
     return new Promise((resolve, reject) => {
       const mountainsRef = ref(storage, `ProfilePictures/${uid}`);
@@ -549,6 +556,7 @@ const [renderMessages, setRenderMessages] = useState([]);
         }
       });
       setRenderMessages(messageComponents);
+    
   
       console.log("messages==>", messages);
     });
@@ -603,7 +611,12 @@ const [renderMessages, setRenderMessages] = useState([]);
             </ConversationHeader>
             <MessageList>
               <MessageSeparator content="thursday, 15 July 2023" />
+              <MessageList.Content>
               {renderMessages}
+              {/* added new component here... */}
+               {!existingUser ? <div>newuser</div> : <></> }
+              </MessageList.Content>
+
             </MessageList>
             <MessageInput
               value={messageInputValue}
