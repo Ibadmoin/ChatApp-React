@@ -2,6 +2,19 @@
   "emulators": {
     "apiKey": "AIzaSyBuIDhLzcLTwzLhsICm8KV1ZPQkpYq1ROA",
     "authDomain": "chatapp-245df.firebaseapp.com"
-
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

@@ -139,43 +139,44 @@ function Chat() {
   };
 
 
-
-
+  
+  
   // to update chat id when a user is selected...
   const [existingUser , setExistingUser] = useState(false);
 
   useEffect(() => {
     getAllMessages(selectedChatId);
   }, [selectedChatId]);
-
+  
   const [selectedUser, setSelectedUser] = useState(null);
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
-
+  
   const handleConversationClick = useCallback(
     (contactUser) => {
       // console.log(contactUser);
       setSelectedUser(contactUser);
       const chatId = genrateChatId(currentUser.uid, contactUser.uid);
       setSelectedChatId(chatId);
-      // console.log(contacts.includes(contactUser.phoneNumber))
+     
 
-      setExistingUser(contacts.includes(contactUser.phoneNumber)); 
-   
-
-
+      
+      // setExistingUser(!contacts.includes(contactUser.phoneNumber)); 
+      
+      
+      
 
       if (sidebarVisible) {
         setSidebarVisible(false);
       }
     },
     [sidebarVisible, setSidebarVisible]
-  );
-  useEffect(() => {
-    if (sidebarVisible) {
-      setSidebarStyle({
-        display: "flex",
-        flexBasis: "auto",
-        width: "100%",
+    );
+    useEffect(() => {
+      if (sidebarVisible) {
+        setSidebarStyle({
+          display: "flex",
+          flexBasis: "auto",
+          width: "100%",
         maxWidth: "100%",
       });
       setConversationContentStyle({
@@ -204,6 +205,18 @@ function Chat() {
     setSidebarStyle,
     setChatContainerStyle,
   ]);
+  // updates existing user state
+    useEffect(()=>{
+      console.log(contacts);
+     if(selectedUser){
+      const newUser = contacts.includes(selectedUser.phoneNumber);
+      console.log(newUser)
+      setExistingUser(newUser);
+     }
+      
+  
+    },[selectedUser]);
+
   // upaloding image url function
   const uploadFile = (file, uid) => {
     return new Promise((resolve, reject) => {
@@ -213,14 +226,14 @@ function Chat() {
         "state_changed",
         (snapshot) => {
           const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log("Upload is " + progress + "% done");
           switch (snapshot.state) {
             case "paused":
               console.log("Upload is paused");
               break;
-            case "running":
-              console.log("Upload is running");
+              case "running":
+                console.log("Upload is running");
               break;
           }
         },
