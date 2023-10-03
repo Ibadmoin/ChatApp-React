@@ -48,7 +48,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { ChatOptions } from "../components/Comp";
 import defaultUserImage from "../assets/images/fallback.png";
-import { differenceInMinutes, formatDistanceToNow } from "date-fns";
+import { differenceInMinutes, formatDistanceToNow, set } from "date-fns";
 function Chat() {
   // ---------------------------------------
   const [messageInputValue, setMessageInputValue] = useState("");
@@ -207,10 +207,10 @@ function Chat() {
   ]);
   // updates existing user state
     useEffect(()=>{
-      console.log(contacts);
+      // console.log(contacts);
      if(selectedUser){
       const newUser = contacts.includes(selectedUser.phoneNumber);
-      console.log(newUser)
+      // console.log(newUser)
       setExistingUser(newUser);
      }
       
@@ -356,7 +356,7 @@ const handleAddNewUser = ()=>{
    };
 
  // getting last msg from chats 
- const [lastMessage ,setLastMessage] = useState(null);
+ const [lastMessage ,setLastMessage] = useState({});
  const getlastMsgFromChats = async (chatId) => {
   const q = query(
     collection(db, "messages"),
@@ -365,34 +365,27 @@ const handleAddNewUser = ()=>{
     limit(1)
   );
 
-  return new Promise((resolve) => {
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        const messageData = doc.data();
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const messageData = doc.data();
 
-        resolve({
-          message: messageData.content,
-          sender: messageData.sender,
-          time: messageData.timestamp,
-        });
-      });
-
-      // Unsubscribe from further updates (you got the last message)
-      unsubscribe();
+      const lastMessage = {
+        message: messageData.content,
+        sender: messageData.sender,
+        time: messageData.timestamp,
+      };
+      setLastMessage((prevLastMessages) => ({
+        ...prevLastMessages,
+        [chatId]: lastMessage,
+      }));
     });
+
+    // Unsubscribe from further updates (you got the last message)
+    unsubscribe();
   });
 };
 
-// useEffect(() => {
-//   const fetchData = async () => {
-//     const zaidLastMsg = await getlastMsgFromChats(
-//       "CwGCHVbJxpSE87hTwL6JLBBk81k1_pdPaKtzftOaVUHvZfQxbtyN5EHI2"
-//     );
-//     console.log(zaidLastMsg);
-//   };
 
-//   fetchData(); // Call the async function
-// }, [db, createChat]);
 
 
 
@@ -422,19 +415,88 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     
     
     // setting up real time listeners for each query
-    
-    newUserQuery.forEach((q)=>{
-      const unsubscribe = onSnapshot(q,(querySnapshot)=>{
-        querySnapshot.forEach(async(doc)=>{
-          const newUser =doc.data();
-       
-         
-          if(newUser){
-   
-         const uniqueKey = doc.id;
-         const existingIndex = converstionComponents.findIndex(
-           (component) => component.key === uniqueKey
+  // Inside the useEffect where you create Conversation components for contact users
+contactQueries.forEach((q) => {
+  const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+    querySnapshot.forEach(async (doc) => {
+      const contactUser = doc.data();
+      
+     
+
+      if (contactUser) {
+        const uniqueKey = doc.id;
+        const existingIndex = converstionComponents.findIndex(
+          (component) => component.key === uniqueKey
         );
+
+      
+
+        if (existingIndex !== -1) {
+          // Update the existing component in the array.
+          converstionComponents[existingIndex] = (
+            <Conversation
+              key={uniqueKey}
+              onClick={() => handleConversationClick(contactUser)}
+            >
+              <Avatar
+                src={contactUser.profilePicture}
+                name="Lilly"
+                status={contactUser.OnlineStatus ? "available" : "away"}
+                style={conversationAvatarStyle}
+              />
+              <Conversation.Content
+                name={contactUser.displayName}
+                lastSenderName={lastMsg?.sender || ""}
+                info={lastMsg?.message || ""}
+                style={conversationContentStyle}
+              />
+            </Conversation>
+          );
+        } else {
+          // Add a new component to the array.
+          converstionComponents.push(
+            <Conversation
+              key={uniqueKey}
+              onClick={() => handleConversationClick(contactUser)}
+            >
+              <Avatar
+                src={contactUser.profilePicture}
+                name="Lilly"
+                status={contactUser.OnlineStatus ? "available" : "away"}
+                style={conversationAvatarStyle}
+              />
+              <Conversation.Content
+                name={contactUser.displayName}
+                lastSenderName={ "neon"}
+                info={ "tu mera putter chuti ker"}
+                style={conversationContentStyle}
+              />
+            </Conversation>
+          );
+        }
+      }
+    });
+
+    // Update the state with the latest conversation components.
+    setRenderedConverstions([...converstionComponents]);
+  });
+
+  unSubFunction.push(unsubscribe);
+});
+
+// Inside the useEffect where you create Conversation components for new users
+newUserQuery.forEach((q) => {
+  const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+    querySnapshot.forEach(async (doc) => {
+      const newUser = doc.data();
+
+      if (newUser) {
+        const uniqueKey = doc.id;
+        const existingIndex = converstionComponents.findIndex(
+          (component) => component.key === uniqueKey
+        );
+
+
 
         if (existingIndex !== -1) {
           // Update the existing component in the array.
@@ -451,8 +513,8 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
               />
               <Conversation.Content
                 name={newUser.displayName}
-                lastSenderName="Lilly"
-                info="Yes, I can do it for you"
+                lastSenderName={lastMsg?.sender || ""}
+                info={lastMsg?.message || ""}
                 style={conversationContentStyle}
               />
             </Conversation>
@@ -472,94 +534,20 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
               />
               <Conversation.Content
                 name={newUser.displayName}
-                lastSenderName="Lilly"
-                info="Yes, I can do it for you"
+                lastSenderName={ "neon"}
+                info={ "tu mera putter chuti ker"}
                 style={conversationContentStyle}
               />
             </Conversation>
           );
         }
-
-      };
-
-
-
-
-        })
-      })
-    })
-  
-  
-
-
-
-
-    // Set up real-time listeners for each query
-    contactQueries.forEach((q) => {
-      const unsubscribe = onSnapshot(q,async (querySnapshot) => {
-        querySnapshot.forEach(async(doc) => {
-          const contactUser = doc.data();
-          
-                 
-          if (contactUser) {
-          
-            const uniqueKey = doc.id;
-            const existingIndex = converstionComponents.findIndex(
-              (component) => component.key === uniqueKey
-            );
-
-            if (existingIndex !== -1) {
-              // Update the existing component in the array.
-              converstionComponents[existingIndex] = (
-                <Conversation
-                  key={uniqueKey}
-                  onClick={() => handleConversationClick(contactUser)}
-                >
-                  <Avatar
-                    src={contactUser.profilePicture}
-                    name="Lilly"
-                    status={contactUser.OnlineStatus ? "available" : "away"}
-                    style={conversationAvatarStyle}
-                  />
-                  <Conversation.Content
-                    name={contactUser.displayName}
-                    lastSenderName="Lilly"
-                    info="Yes, I can do it for you"
-                    style={conversationContentStyle}
-                  />
-                </Conversation>
-              );
-            } else {
-              // Add a new component to the array.
-              converstionComponents.push(
-                <Conversation
-                  key={uniqueKey}
-                  onClick={() => handleConversationClick(contactUser)}
-                >
-                  <Avatar
-                    src={contactUser.profilePicture}
-                    name="Lilly"
-                    status={contactUser.OnlineStatus ? "available" : "away"}
-                    style={conversationAvatarStyle}
-                  />
-                  <Conversation.Content
-                    name={contactUser.displayName}
-                    lastSenderName="Lilly"
-                    info="Yes, I can do it for you"
-                    style={conversationContentStyle}
-                  />
-                </Conversation>
-              );
-            }
-          }
-        });
-
-        // Update the state with the latest conversation components.
-        setRenderedConverstions([...converstionComponents]);
-      });
-
-      unSubFunction.push(unsubscribe);
+      }
     });
+
+    // Update the state with the latest conversation components.
+    setRenderedConverstions([...converstionComponents]);
+  });
+});
 
  
 
