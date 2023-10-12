@@ -143,8 +143,8 @@ function Auth() {
 
         {user ? (
           <h2 className="Heading">👍 Login Success</h2>
-        ) : (
-          <div className="Wrapper">
+          ) : (
+            <div className="Wrapper">
             <h1 className="Heading">
               Welcome to <br />
               Chatters
@@ -209,11 +209,12 @@ function Auth() {
                   <span>Send code via SMS</span>
                 </button>
                
-                <div id="recaptcha-container"></div>
+                
               </>
             )}
           </div>
         )}
+<div id="recaptcha-container"></div>
       </div>
     </section>
   );

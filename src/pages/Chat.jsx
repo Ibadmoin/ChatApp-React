@@ -67,6 +67,7 @@ function Chat() {
   const [contacts, setContacts] = useState([]);
   const [lastSeen, setLastSeen] = useState(null);
   const [selectedChatId, setSelectedChatId] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const AuthCurrentUser = useContext(AuthContext);
   const currentUser = AuthCurrentUser.currentUser;
@@ -76,7 +77,7 @@ function Chat() {
   // ------------
   // getting realtime user data here....
   //--------------------------
-  const [inconmingUsers,setIncomingUsers]= useState([]);
+  const [inconmingUsers, setIncomingUsers] = useState([]);
   useEffect(() => {
     const unsub = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -85,21 +86,21 @@ function Chat() {
         setUserName(userDoc.displayName);
         setUserImage(userDoc.profilePicture);
         setIncomingUsers(userDoc.chat);
-        
-        
 
         if (userDoc.contacts) {
           setContacts(userDoc.contacts);
         }
       } else {
-        console.log("Fetching user data...");
+        console.log("Fetching user data ...");
       }
     });
 
     return () => unsub();
-  }, [db]);
-  // ---------------
+  }, [db,]);
 
+
+ 
+  // ---------------
 
   // set user online condition here....
   const targetUserRef = doc(db, "users", `9J09bEDJ3APAQZXariBpCJe608f1`);
@@ -136,19 +137,15 @@ function Chat() {
     } else {
       return formatDistanceToNow(lastSeenTimestamp);
     }
-  };
-
-
-
+  }
 
   // to update chat id when a user is selected...
-  const [existingUser , setExistingUser] = useState(false);
+  const [existingUser, setExistingUser] = useState(false);
 
   useEffect(() => {
     getAllMessages(selectedChatId);
   }, [selectedChatId]);
 
-  const [selectedUser, setSelectedUser] = useState(null);
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
 
   const handleConversationClick = useCallback(
@@ -158,17 +155,16 @@ function Chat() {
       const chatId = genrateChatId(currentUser.uid, contactUser.uid);
       setSelectedChatId(chatId);
       // console.log(contacts.includes(contactUser.phoneNumber))
+// problem here...
+      // console.log(contacts);
 
-      setExistingUser(contacts.includes(contactUser.phoneNumber)); 
-   
-
-
+      setExistingUser(contacts.includes(contactUser.phoneNumber));
 
       if (sidebarVisible) {
         setSidebarVisible(false);
       }
     },
-    [sidebarVisible, setSidebarVisible]
+    [sidebarVisible, setSidebarVisible, selectedUser]
   );
   useEffect(() => {
     if (sidebarVisible) {
@@ -279,217 +275,166 @@ function Chat() {
       });
   };
   // add to contact list
-const handleAddNewUser = ()=>{
-  console.log("added");
-  setExistingUser(true)
-}
+  const handleAddNewUser = () => {
+    console.log("added");
+    setExistingUser(true);
+  };
 
-  // block user 
-  const handleBlockUser = ()=>{
-    console.log('block')
-  }
- 
-
+  // block user
+  const handleBlockUser = () => {
+    console.log("block");
+  };
 
   // getting  user data from chat list;
-   const createChat= async(userUid, otherUserUid,message) => {
-     const otherUserDocRef = doc(db, "users", `${otherUserUid}`);
-     const phoneNumberWithoutPlus = currentUser.phoneNumber.replace(/\+/g, '');
-     console.log(phoneNumberWithoutPlus)
+  const createChat = async (userUid, otherUserUid, message) => {
+    const otherUserDocRef = doc(db, "users", `${otherUserUid}`);
+    const phoneNumberWithoutPlus = currentUser.phoneNumber.replace(/\+/g, "");
+    console.log(phoneNumberWithoutPlus);
 
-
-     const unsubs  = onSnapshot(otherUserDocRef, async(querySnapshot)=>{
-      
-      if(!querySnapshot?.data()?.contacts.includes(phoneNumberWithoutPlus)){
-
-        const chatId = genrateChatId(userUid,otherUserUid);
-        const chatDocRef = doc(db,"chats",chatId);
+    const unsubs = onSnapshot(otherUserDocRef, async (querySnapshot) => {
+      if (!querySnapshot?.data()?.contacts.includes(phoneNumberWithoutPlus)) {
+        const chatId = genrateChatId(userUid, otherUserUid);
+        const chatDocRef = doc(db, "chats", chatId);
         const chatDocSnapshot = await getDoc(chatDocRef);
 
-        if( chatDocSnapshot.exists()){
-          const chatData =  chatDocSnapshot.data();
-          const newMessage = message
-            
+        if (chatDocSnapshot.exists()) {
+          const chatData = chatDocSnapshot.data();
+          const newMessage = message;
+
           chatData.messages.push(newMessage);
-          await updateDoc(chatDocRef,{
-            messages:[...chatData.messages]
+          await updateDoc(chatDocRef, {
+            messages: [...chatData.messages],
           });
-        }else{
+        } else {
           await setDoc(chatDocRef, {
             participants: [userUid, otherUserUid],
             messages: [message], // Assuming `message` is the first message
           });
         }
 
-       
-
         // updating incoming user uid to current user document...
 
-        await updateDoc(doc(db,"users",otherUserUid),{
-                  chat:arrayUnion(otherUserUid),
-                });
-
-               
-
-
-      
-
-     }else{
-      console.log("already")
-     }
-    })
-   
-    
-   };
-
- // getting last msg from chats 
- const [lastMessage ,setLastMessage] = useState(null);
- const getlastMsgFromChats = async (chatId) => {
-  const q = query(
-    collection(db, "messages"),
-    where("chatId", "==", chatId),
-    orderBy("timestamp", "desc"),
-    limit(1)
-  );
-
-  return new Promise((resolve) => {
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        const messageData = doc.data();
-
-        resolve({
-          message: messageData.content,
-          sender: messageData.sender,
-          time: messageData.timestamp,
+        await updateDoc(doc(db, "users", otherUserUid), {
+          chat: arrayUnion(otherUserUid),
         });
-      });
-
-      // Unsubscribe from further updates (you got the last message)
-      unsubscribe();
+      } else {
+        console.log("already");
+      }
     });
-  });
-};
+  };
 
-// useEffect(() => {
-//   const fetchData = async () => {
-//     const zaidLastMsg = await getlastMsgFromChats(
-//       "CwGCHVbJxpSE87hTwL6JLBBk81k1_pdPaKtzftOaVUHvZfQxbtyN5EHI2"
-//     );
-//     console.log(zaidLastMsg);
-//   };
+  // getting last msg from chats
+  const [lastMessage, setLastMessage] = useState(null);
+  const getlastMsgFromChats = async (chatId) => {
+    const q = query(
+      collection(db, "messages"),
+      where("chatId", "==", chatId),
+      orderBy("timestamp", "desc"),
+      limit(1)
+    );
 
-//   fetchData(); // Call the async function
-// }, [db, createChat]);
+    return new Promise((resolve) => {
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const messageData = doc.data();
 
+          resolve({
+            message: messageData.content,
+            sender: messageData.sender,
+            time: messageData.timestamp,
+          });
+        });
 
+        // Unsubscribe from further updates (you got the last message)
+        unsubscribe();
+      });
+    });
+  };
 
-
-
-   
-
-const [renderedConverstions, setRenderedConverstions] = useState([]);
+  const [renderedConverstions, setRenderedConverstions] = useState([]);
   useEffect(() => {
     const unSubFunction = [];
     const converstionComponents = [];
     const contactQueries = contacts.map((contact) =>
-    query(collection(db, "users"), where("phoneNumber", "==", contact))
-  );
-    // adding query for new users in chat list
-    const newUserQuery = inconmingUsers.map((newUser)=>
-      query(collection(db, "users"), where("uid", "==",newUser ))
+      query(collection(db, "users"), where("phoneNumber", "==", contact))
     );
+    // adding query for new users in chat list
+    if (inconmingUsers) {
+      const newUserQuery = inconmingUsers.map((newUser) =>
+        query(collection(db, "users"), where("uid", "==", newUser))
+      );
 
-    
-    
-    
+      // here.....................
 
-    
-    // here.....................
-    
-    
-    
-    // setting up real time listeners for each query
-    
-    newUserQuery.forEach((q)=>{
-      const unsubscribe = onSnapshot(q,(querySnapshot)=>{
-        querySnapshot.forEach(async(doc)=>{
-          const newUser =doc.data();
-       
-         
-          if(newUser){
-   
-         const uniqueKey = doc.id;
-         const existingIndex = converstionComponents.findIndex(
-           (component) => component.key === uniqueKey
-        );
+      // setting up real time listeners for each query
 
-        if (existingIndex !== -1) {
-          // Update the existing component in the array.
-          converstionComponents[existingIndex] = (
-            <Conversation
-              key={uniqueKey}
-              onClick={() => handleConversationClick(newUser)}
-            >
-              <Avatar
-                src={newUser.profilePicture}
-                name="Lilly"
-                status={newUser.OnlineStatus ? "available" : "away"}
-                style={conversationAvatarStyle}
-              />
-              <Conversation.Content
-                name={newUser.displayName}
-                lastSenderName="Lilly"
-                info="Yes, I can do it for you"
-                style={conversationContentStyle}
-              />
-            </Conversation>
-          );
-        } else {
-          // Add a new component to the array.
-          converstionComponents.push(
-            <Conversation
-              key={uniqueKey}
-              onClick={() => handleConversationClick(newUser)}
-            >
-              <Avatar
-                src={newUser.profilePicture}
-                name="Lilly"
-                status={newUser.OnlineStatus ? "available" : "away"}
-                style={conversationAvatarStyle}
-              />
-              <Conversation.Content
-                name={newUser.displayName}
-                lastSenderName="Lilly"
-                info="Yes, I can do it for you"
-                style={conversationContentStyle}
-              />
-            </Conversation>
-          );
-        }
+      newUserQuery.forEach((q) => {
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          querySnapshot.forEach(async (doc) => {
+            const newUser = doc.data();
 
-      };
+            if (newUser) {
+              const uniqueKey = doc.id;
+              const existingIndex = converstionComponents.findIndex(
+                (component) => component.key === uniqueKey
+              );
 
-
-
-
-        })
-      })
-    })
-  
-  
-
-
-
+              if (existingIndex !== -1) {
+                // Update the existing component in the array.
+                converstionComponents[existingIndex] = (
+                  <Conversation
+                    key={uniqueKey}
+                    onClick={() => handleConversationClick(newUser)}
+                  >
+                    <Avatar
+                      src={newUser.profilePicture}
+                      name="Lilly"
+                      status={newUser.OnlineStatus ? "available" : "away"}
+                      style={conversationAvatarStyle}
+                    />
+                    <Conversation.Content
+                      name={newUser.displayName}
+                      lastSenderName="Lilly"
+                      info="Yes, I can do it for you"
+                      style={conversationContentStyle}
+                    />
+                  </Conversation>
+                );
+              } else {
+                // Add a new component to the array.
+                converstionComponents.push(
+                  <Conversation
+                    key={uniqueKey}
+                    onClick={() => handleConversationClick(newUser)}
+                  >
+                    <Avatar
+                      src={newUser.profilePicture}
+                      name="Lilly"
+                      status={newUser.OnlineStatus ? "available" : "away"}
+                      style={conversationAvatarStyle}
+                    />
+                    <Conversation.Content
+                      name={newUser.displayName}
+                      lastSenderName="Lilly"
+                      info="Yes, I can do it for you"
+                      style={conversationContentStyle}
+                    />
+                  </Conversation>
+                );
+              }
+            }
+          });
+        });
+      });
+    }
 
     // Set up real-time listeners for each query
     contactQueries.forEach((q) => {
-      const unsubscribe = onSnapshot(q,async (querySnapshot) => {
-        querySnapshot.forEach(async(doc) => {
+      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+        querySnapshot.forEach(async (doc) => {
           const contactUser = doc.data();
-          
-                 
+
           if (contactUser) {
-          
             const uniqueKey = doc.id;
             const existingIndex = converstionComponents.findIndex(
               (component) => component.key === uniqueKey
@@ -548,18 +493,11 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
       unSubFunction.push(unsubscribe);
     });
 
- 
-
-    
-
-  
-
-
     // Cleanup the listeners when the component unmounts
     return () => {
       unSubFunction.forEach((unsubscribe) => unsubscribe());
     };
-  }, [contacts, db,setContacts]);
+  }, [contacts, db, setContacts]);
 
   // chat functions
   // =======================
@@ -568,17 +506,24 @@ const [renderedConverstions, setRenderedConverstions] = useState([]);
     return `${sortedUid[0]}_${sortedUid[1]}`;
   };
 
- 
+  useEffect(() => {
+    console.log(existingUser);
+  }, [selectedUser]);
+
   // getting messages here...
-const [renderMessages, setRenderMessages] = useState([]);
+  const [renderMessages, setRenderMessages] = useState([]);
   const getAllMessages = (chatId) => {
-    const q = query(collection(db, "messages"), where("chatId", "==", chatId), orderBy("timestamp","asc"));
+    const q = query(
+      collection(db, "messages"),
+      where("chatId", "==", chatId),
+      orderBy("timestamp", "asc")
+    );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const messages = [];
       querySnapshot.forEach((doc) => {
         messages.push(doc.data());
       });
-      const messageComponents = messages.map((message,index) => {
+      const messageComponents = messages.map((message, index) => {
         if (currentUser.uid === message.sender.userId) {
           // If the current user sent the message, render as outgoing
           return (
@@ -610,8 +555,7 @@ const [renderMessages, setRenderMessages] = useState([]);
         }
       });
       setRenderMessages(messageComponents);
-    
-  
+
       console.log("messages==>", messages);
     });
   };
@@ -666,11 +610,17 @@ const [renderMessages, setRenderMessages] = useState([]);
             <MessageList>
               <MessageSeparator content="thursday, 15 July 2023" />
               <MessageList.Content>
-              {renderMessages}
-              {/* added new component here... */}
-             {existingUser ? (<></>): <NewUserAlert onAddToContactClick={handleAddNewUser} onBlockClick={handleBlockUser} />}
+                {renderMessages}
+                {/* added new component here... */}
+                {existingUser ? (
+                  <></>
+                ) : (
+                  <NewUserAlert
+                    onAddToContactClick={handleAddNewUser}
+                    onBlockClick={handleBlockUser}
+                  />
+                )}
               </MessageList.Content>
-
             </MessageList>
             <MessageInput
               value={messageInputValue}
@@ -682,7 +632,7 @@ const [renderMessages, setRenderMessages] = useState([]);
                   console.log(messageInputValue);
                   console.log(selectedChatId);
                   const messagecontent = messageInputValue;
-                  createChat(currentUser.uid, selectedUser.uid,messagecontent)
+                  createChat(currentUser.uid, selectedUser.uid, messagecontent);
                   setMessageInputValue("");
                   const docRef = await addDoc(collection(db, "messages"), {
                     chatId: `${selectedChatId}`,
